@@ -12,7 +12,7 @@ export function SignCard({
   isLoading,
   isLinkedIn=true,
   handleLinkedInSignIn=() => {
-    window.location.href = "http://localhost:3000/api/auth/linkedin";
+    window.location.href = "http://localhost:8000/api/auth/linkedin";
   }
 }) {
   return (

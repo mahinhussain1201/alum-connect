@@ -4,7 +4,7 @@ export const updateBasicProfile = async (url, profileData) => {
   try {
     const token = localStorage.getItem("token");
     const response = await axios.put(
-      `http://localhost:3000/api/${url}`,
+      `http://localhost:8000/api/${url}`,
       profileData,
       {
         headers: {
@@ -22,7 +22,7 @@ export const updateBasicProfile = async (url, profileData) => {
 export const addExperience = async (url, experienceData) => {
   try {
     const token = localStorage.getItem("token");
-    const response=await axios.post(`http://localhost:3000/api/${url}`, experienceData, {
+    const response=await axios.post(`http://localhost:8000/api/${url}`, experienceData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -37,7 +37,7 @@ export const postNewInternship = async (internshipData) => {
   try {
     const token = localStorage.getItem("token");
     const response = await axios.post(
-      "http://localhost:3000/api/alumni/postInternship",
+      "http://localhost:8000/api/alumni/postInternship",
       internshipData,
       {
         headers: {
@@ -59,7 +59,7 @@ export const closeInternship = async (id) => {
   try {
     const token = localStorage.getItem("token");
     const response = await axios.patch(
-      `http://localhost:3000/api/alumni/closeInternship/${id}`,
+      `http://localhost:8000/api/alumni/closeInternship/${id}`,
       {},
       {
         headers: {
@@ -79,7 +79,7 @@ export const registerForEvent = async (eventId) => {
     const token = localStorage.getItem("token");
 
     const response = await axios.post(
-      "http://localhost:3000/api/events/registerForUpcomingEvent",
+      "http://localhost:8000/api/events/registerForUpcomingEvent",
       { eventId },
       {
         headers: {
@@ -111,7 +111,7 @@ export const sendMentorshipRequest = async (mentorUserId) =>{
     };
 
     const response = await axios.post(
-      'http://localhost:3000/api/student/connectMentor', 
+      'http://localhost:8000/api/student/connectMentor', 
       body,
       { headers } 
     );
@@ -133,7 +133,7 @@ export const fetchMentorProfileForMentor = async(mentorUserId) =>{
     };
 
     const response = await axios.post(
-      'http://localhost:3000/api/alumni/getMentorProfile', 
+      'http://localhost:8000/api/alumni/getMentorProfile', 
       body,
       { headers } 
     );
@@ -158,7 +158,7 @@ export const fetchMentorProfile = async(mentorUserId) =>{
     };
 
     const response = await axios.post(
-      'http://localhost:3000/api/student/getMentorProfile', 
+      'http://localhost:8000/api/student/getMentorProfile', 
       body,
       { headers } 
     );
@@ -173,7 +173,7 @@ export const acceptInternshipApplication = async (internshipId, studentId) => {
   try {
     const token = localStorage.getItem("token");
     await axios.patch(
-      `http://localhost:3000/api/alumni/acceptStudent/${internshipId}`,
+      `http://localhost:8000/api/alumni/acceptStudent/${internshipId}`,
       {
         studentId: studentId,
       },
@@ -194,7 +194,7 @@ export const rejectInternshipApplication = async (internshipId, studentId) => {
   try {
     const token = localStorage.getItem("token");
     await axios.patch(
-      `http://localhost:3000/api/alumni/rejectStudent/${internshipId}`,
+      `http://localhost:8000/api/alumni/rejectStudent/${internshipId}`,
       {
         studentId: studentId,
       },

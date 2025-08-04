@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { SignCard } from "./signcard";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import API_BASE_URL from "../config/api";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
@@ -15,7 +16,7 @@ const SignUp = () => {
   const handleSignUp = async (event) => {
     event.preventDefault();
     setLoading((isLoading) => true);
-    const response = await axios.post("http://localhost:3000/api/auth/signup", {
+    const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
       username,
       email,
       password,

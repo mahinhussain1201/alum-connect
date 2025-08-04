@@ -18,7 +18,7 @@ const Card = ({ title, description, icon, link, disabled, disabledMessage }) => 
       }
   
       try {
-        const response = await axios.get("http://localhost:3000/api/alumni/mentorshipStatus", {
+        const response = await axios.get("http://localhost:8000/api/alumni/mentorshipStatus", {
           headers: { Authorization: `Bearer ${token}` },
         }).catch((error)=>console.log(error)
         );

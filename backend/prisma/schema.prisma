@@ -12,7 +12,7 @@ model User {
   username String  @unique
   email    String  @unique
   password String? // LinkedIn sign-ins may have null password
-  role     Role //will prolly create issue in linkedIn signup
+  role     Role @default(STUDENT)//will prolly create issue in linkedIn signup
 
   student          Student?
   alumni           Alumni?

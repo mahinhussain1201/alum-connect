@@ -92,7 +92,7 @@ const InternCard = ({
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        `http://localhost:3000/api/student/applyInternship/${id}`,
+        `http://localhost:8000/api/student/applyInternship/${id}`,
         {},
         {
           headers: {

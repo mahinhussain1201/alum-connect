@@ -15,7 +15,7 @@ const SignIn = () => {
   const handleSignInClick = async (event) => {
     event.preventDefault();
     setLoading((isLoading) => true);
-    const response = await axios.post("http://localhost:3000/api/auth/signin", {
+    const response = await axios.post("http://localhost:8000/api/auth/signin", {
       email,
       password,
     });
@@ -25,7 +25,7 @@ const SignIn = () => {
   };
 
   // const handleLinkedInSignIn = () => {
-  //   window.location.href = "http://localhost:3000/api/auth/linkedin";
+  //   window.location.href = "http://localhost:8000/api/auth/linkedin";
   // };
 
   return (

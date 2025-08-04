@@ -12,7 +12,7 @@ const internshipRoutes=require("./routes/internshipRoutes");
 const eventRoutes=require("./routes/eventRoutes")
 
 const app = express();
-const PORT = 3000;
+const PORT = 8000;
 
 // Middlewares
 app.use(bodyParser.urlencoded({extended:false}));

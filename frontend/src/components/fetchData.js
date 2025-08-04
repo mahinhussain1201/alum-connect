@@ -4,7 +4,7 @@ export const fetchUserInfo = async () => {
   const token = localStorage.getItem("token");
   if (token) {
     try {
-      const response = await fetch("http://localhost:3000/api/user/userInfo", {
+      const response = await fetch("http://localhost:8000/api/user/userInfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -27,7 +27,7 @@ export const fetchUserInfo = async () => {
 export const fetchInternships = async (url) => {
   try {
     const token = localStorage.getItem("token");
-    const response = await axios.get(`http://localhost:3000/api/${url}`, {
+    const response = await axios.get(`http://localhost:8000/api/${url}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -52,7 +52,7 @@ export const fetchInternships = async (url) => {
 export const fetchProfile = async (url) => {
   try{
     const token=localStorage.getItem("token");
-  const response=await axios.get(`http://localhost:3000/api/${url}`,{
+  const response=await axios.get(`http://localhost:8000/api/${url}`,{
     headers:{
       Authorization: `Bearer ${token}`
     }
@@ -66,7 +66,7 @@ export const fetchProfile = async (url) => {
 export const fetchExperience = async (url) => {
   try{
     const token=localStorage.getItem("token");
-  const response=await axios.get(`http://localhost:3000/api/${url}`,{
+  const response=await axios.get(`http://localhost:8000/api/${url}`,{
     headers:{
       Authorization: `Bearer ${token}`
     }
@@ -84,7 +84,7 @@ export const fetchInternshipApplications=async(id)=>{
     const token = localStorage.getItem("token");
 
     const response = await axios.get(
-      `http://localhost:3000/api/alumni/getAllApplications/${id}`,
+      `http://localhost:8000/api/alumni/getAllApplications/${id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -110,7 +110,7 @@ export const fetchInternshipApplications=async(id)=>{
 export const fetchUpcomingEvents = async () => {
   try {
     const token = localStorage.getItem("token");
-    const response = await axios.get("http://localhost:3000/api/events/getUpcomingEvents", {
+    const response = await axios.get("http://localhost:8000/api/events/getUpcomingEvents", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -125,7 +125,7 @@ export const fetchUpcomingEvents = async () => {
 export const fetchPastEvents = async () => {
   try {
     const token = localStorage.getItem("token");
-    const response = await axios.get("http://localhost:3000/api/events/getPastEvents", {
+    const response = await axios.get("http://localhost:8000/api/events/getPastEvents", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -143,7 +143,7 @@ export const fetchMentors = async ()=>{
     const token = localStorage.getItem("token");
 
     const response = await axios.get(
-      `http://localhost:3000/api/student/getMentors`,
+      `http://localhost:8000/api/student/getMentors`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -163,7 +163,7 @@ export const fetchMentorships = async ()=>{
     const token = localStorage.getItem("token");
 
     const response = await axios.get(
-      `http://localhost:3000/api/alumni/getMentorshipsForMentors`,
+      `http://localhost:8000/api/alumni/getMentorshipsForMentors`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -181,7 +181,7 @@ export const fetchMentorships = async ()=>{
 export const acceptMentorship = async (mentorshipId) => {
   try {
     const token = localStorage.getItem("token");
-    const response = await axios.patch('http://localhost:3000/api/alumni/acceptMentorship', {
+    const response = await axios.patch('http://localhost:8000/api/alumni/acceptMentorship', {
       mentorshipId: mentorshipId,
     },{
       headers: {

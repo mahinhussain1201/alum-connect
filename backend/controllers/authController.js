@@ -96,7 +96,7 @@ const signinUser = async (req, res) => {
 // LinkedIn OAuth 2.0 credentials from environment variables
 const LINKEDIN_CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
 const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
-const LINKEDIN_REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI || "http://localhost:3000/api/auth/linkedin/callback";
+const LINKEDIN_REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI || "http://localhost:8000/api/auth/linkedin/callback";
 
 // console.log(LINKEDIN_CLIENT_ID);
 // console.log(LINKEDIN_CLIENT_SECRET);
