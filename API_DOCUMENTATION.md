@@ -5,7 +5,7 @@ Alum-Connect is a platform that connects students with alumni for internships, m
 
 ## Base URL
 ```
-http://localhost:3000/api
+http://localhost:8000/api
 ```
 
 ## Authentication
@@ -580,7 +580,7 @@ JWT_SECRET="your_jwt_secret_key"
 # LinkedIn OAuth
 LINKEDIN_CLIENT_ID="your_linkedin_client_id"
 LINKEDIN_CLIENT_SECRET="your_linkedin_client_secret"
-LINKEDIN_REDIRECT_URI="http://localhost:3000/api/auth/linkedin/callback"
+LINKEDIN_REDIRECT_URI="http://localhost:8000/api/auth/linkedin/callback"
 ```
 
 ---
@@ -620,24 +620,24 @@ LINKEDIN_REDIRECT_URI="http://localhost:3000/api/auth/linkedin/callback"
 ## 14. API Testing
 
 ### Using Postman/Insomnia
-1. Set base URL: `http://localhost:3000/api`
+1. Set base URL: `http://localhost:8000/api`
 2. For protected routes, add header: `Authorization: Bearer <token>`
 3. Use the endpoints documented above
 
 ### Example cURL Commands
 ```bash
 # Sign up
-curl -X POST http://localhost:3000/api/auth/signup \
+curl -X POST http://localhost:8000/api/auth/signup \
   -H "Content-Type: application/json" \
   -d '{"username":"test","email":"test@example.com","password":"password","role":"STUDENT"}'
 
 # Sign in
-curl -X POST http://localhost:3000/api/auth/signin \
+curl -X POST http://localhost:8000/api/auth/signin \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"password"}'
 
 # Get user info (with token)
-curl -X GET http://localhost:3000/api/user/userInfo \
+curl -X GET http://localhost:8000/api/user/userInfo \
   -H "Authorization: Bearer <your_token>"
 ```
 
