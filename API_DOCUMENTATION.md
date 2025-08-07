@@ -20,23 +20,61 @@ Authorization: Bearer <token>
 
 ### 1.1 User Registration
 - **Endpoint:** `POST /api/auth/signup`
-- **Description:** Register a new user account
+- **Description:** Register a new user account with role-specific data
 - **Request Body:**
-  ```json
-  {
-    "username": "string",
-    "email": "string",
-    "password": "string",
-    "role": "STUDENT" | "ALUMNI"
+
+#### Student Registration
+```json
+{
+  "username": "string",
+  "email": "string",
+  "password": "string",
+  "role": "STUDENT",
+  "studentData": {
+    "fullName": "string (min 2 characters)",
+    "cgpa": "number (0-10)",
+    "cv": "string (valid URL)",
+    "department": "string (min 2 characters)",
+    "rollno": "string (required)",
+    "domain": "DOMAIN_ENUM"
   }
-  ```
+}
+```
+
+#### Alumni Registration
+```json
+{
+  "username": "string",
+  "email": "string",
+  "password": "string",
+  "role": "ALUMNI",
+  "alumniData": {
+    "fullName": "string (min 2 characters)",
+    "presentCompany": "string (min 2 characters)",
+    "yearsOfExperience": "number (non-negative)",
+    "domain": "DOMAIN_ENUM"
+  }
+}
+```
+
 - **Response:** `201 Created`
   ```json
   {
     "message": "User created successfully!",
-    "token": "jwt_token"
+    "token": "jwt_token",
+    "user": {
+      "id": "number",
+      "username": "string",
+      "email": "string",
+      "role": "STUDENT" | "ALUMNI"
+    }
   }
   ```
+
+- **Error Responses:**
+  - `400 Bad Request`: Validation errors or missing required fields
+  - `401 Unauthorized`: User already exists
+  - `500 Internal Server Error`: Server-side errors
 
 ### 1.2 User Login
 - **Endpoint:** `POST /api/auth/signin`
@@ -51,15 +89,30 @@ Authorization: Bearer <token>
 - **Response:** `200 OK`
   ```json
   {
-    "message": "Sign-in successful.",
-    "token": "jwt_token"
+    "message": "Login successful!",
+    "token": "jwt_token",
+    "user": {
+      "id": "number",
+      "username": "string",
+      "email": "string",
+      "role": "STUDENT" | "ALUMNI",
+      "profile": {
+        // Student profile fields or Alumni profile fields based on role
+      }
+    }
   }
   ```
+
+- **Error Responses:**
+  - `400 Bad Request`: Validation errors
+  - `401 Unauthorized`: Invalid email or password
+  - `500 Internal Server Error`: Server-side errors
 
 ### 1.3 LinkedIn OAuth
 - **Endpoint:** `GET /api/auth/linkedin`
 - **Description:** Initiate LinkedIn OAuth flow
 - **Response:** Redirects to LinkedIn authorization page
+- **Scopes:** `openid`, `profile`, `email`
 
 ### 1.4 LinkedIn Callback
 - **Endpoint:** `GET /api/auth/linkedin/callback`
@@ -72,6 +125,80 @@ Authorization: Bearer <token>
     "token": "jwt_token"
   }
   ```
+
+- **Error Responses:**
+  - `400 Bad Request`: Missing authorization code
+  - `500 Internal Server Error`: OAuth process failure
+
+---
+
+## 1.5 Authentication Implementation Details
+
+### Data Flow
+1. **User Registration**: 
+   - User submits registration form with role-specific data
+   - Backend validates data using Zod schemas
+   - Password is hashed using bcrypt (salt rounds: 10)
+   - User record is created in database
+   - Role-specific profile (Student/Alumni) is created in respective table
+   - JWT token is generated and returned
+
+2. **User Login**:
+   - User submits email and password
+   - Backend finds user by email
+   - Password is verified using bcrypt.compare()
+   - JWT token is generated and returned with user profile data
+
+3. **LinkedIn OAuth**:
+   - User clicks LinkedIn sign-in
+   - Backend redirects to LinkedIn authorization URL
+   - LinkedIn redirects back with authorization code
+   - Backend exchanges code for access token
+   - User profile is fetched from LinkedIn API
+   - User is created/authenticated and JWT token is returned
+
+### Security Features
+- **Password Hashing**: bcrypt with 10 salt rounds
+- **JWT Tokens**: Secure token-based authentication
+- **Input Validation**: Zod schema validation for all inputs
+- **CORS Configuration**: Proper cross-origin setup
+- **Environment Variables**: Secure configuration management
+- **Database Transactions**: Ensures data consistency
+
+### Validation Rules
+- **Username**: Required, minimum 1 character
+- **Email**: Required, valid email format, unique
+- **Password**: Required, minimum 1 character
+- **Role**: Required, must be "STUDENT" or "ALUMNI"
+- **Student Data**: Required for students
+  - fullName: minimum 2 characters
+  - cgpa: number between 0-10
+  - cv: valid URL
+  - department: minimum 2 characters
+  - rollno: required
+  - domain: must be valid enum value
+- **Alumni Data**: Required for alumni
+  - fullName: minimum 2 characters
+  - presentCompany: minimum 2 characters
+  - yearsOfExperience: non-negative number
+  - domain: must be valid enum value
+
+### Error Handling
+- **Validation Errors**: Detailed field-specific error messages
+- **Network Errors**: User-friendly network error messages
+- **Server Errors**: Graceful handling of server-side errors
+- **Database Errors**: Proper transaction rollback on failures
+
+### Test Credentials
+Use these seeded users for testing:
+
+#### Student
+- Email: `student@gmail.com`
+- Password: `123456`
+
+#### Alumni
+- Email: `alumni@gmail.com`
+- Password: `123456`
 
 ---
 
@@ -626,15 +753,44 @@ LINKEDIN_REDIRECT_URI="http://localhost:8000/api/auth/linkedin/callback"
 
 ### Example cURL Commands
 ```bash
-# Sign up
+# Student Sign up
 curl -X POST http://localhost:8000/api/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{"username":"test","email":"test@example.com","password":"password","role":"STUDENT"}'
+  -d '{
+    "username": "student123",
+    "email": "student@example.com",
+    "password": "password123",
+    "role": "STUDENT",
+    "studentData": {
+      "fullName": "John Doe",
+      "cgpa": 3.8,
+      "cv": "https://drive.google.com/cv-link",
+      "department": "Computer Science",
+      "rollno": "CS2025001",
+      "domain": "SOFTWARE"
+    }
+  }'
+
+# Alumni Sign up
+curl -X POST http://localhost:8000/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "alumni123",
+    "email": "alumni@example.com",
+    "password": "password123",
+    "role": "ALUMNI",
+    "alumniData": {
+      "fullName": "Jane Smith",
+      "presentCompany": "Tech Corp",
+      "yearsOfExperience": 5,
+      "domain": "SOFTWARE"
+    }
+  }'
 
 # Sign in
 curl -X POST http://localhost:8000/api/auth/signin \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password"}'
+  -d '{"email":"student@example.com","password":"password123"}'
 
 # Get user info (with token)
 curl -X GET http://localhost:8000/api/user/userInfo \

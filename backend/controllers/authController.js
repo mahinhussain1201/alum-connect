@@ -5,90 +5,242 @@ const jwt = require("jsonwebtoken");
 const { z } = require("zod");
 const axios = require('axios');
 
-// Zod Schema for sign-up Validation
+// existing schema (updated for the new requirements)
 const signUp_signIn_Schema = z.object({
   username: z.string().min(1, { message: "Username cannot be empty!" }).optional(),
   email: z.string().email({ message: "Invalid email address!" }),
   password: z.string().min(1, { message: "Password cannot be empty!" }),
-  role:z.enum(["STUDENT","ALUMNI"]).optional()
+  role: z.enum(["STUDENT", "ALUMNI"]).optional()
 });
 
-
-
+// Extended schema for signup with role-specific data
+const signUpExtendedSchema = z.object({
+  username: z.string().min(1, { message: "Username cannot be empty!" }),
+  email: z.string().email({ message: "Invalid email address!" }),
+  password: z.string().min(1, { message: "Password cannot be empty!" }),
+  role: z.enum(["STUDENT", "ALUMNI"]),
+  
+  // Student specific data
+  studentData: z.object({
+    fullName: z.string().min(2, { message: "Full name must be at least 2 characters!" }),
+    cgpa: z.number().min(0).max(10, { message: "CGPA must be between 0 and 10!" }),
+    cv: z.string().url({ message: "CV must be a valid URL!" }),
+    department: z.string().min(2, { message: "Department must be at least 2 characters!" }),
+    rollno: z.string().min(1, { message: "Roll number is required!" }),
+    domain: z.enum([
+      "SOFTWARE", "FRONTEND", "BACKEND", "PRODUCT_MANAGEMENT", "WEB_DEVELOPMENT", 
+      "MOBILE_DEVELOPMENT", "MACHINE_LEARNING", "DATA_SCIENCE", "BLOCKCHAIN", 
+      "CLOUD_COMPUTING", "CYBERSECURITY", "BUSINESS_MANAGEMENT", "FINANCE", 
+      "ACCOUNTING", "HUMAN_RESOURCES", "MARKETING", "SALES", "OPERATIONS", 
+      "STRATEGY", "PROJECT_MANAGEMENT", "SUPPLY_CHAIN_MANAGEMENT", "CONSULTING", 
+      "ENTREPRENEURSHIP", "BUSINESS_DEVELOPMENT", "BUSINESS_ANALYTICS", 
+      "ECONOMICS", "PUBLIC_RELATIONS"
+    ])
+  }).optional(),
+  
+  // Alumni specific data
+  alumniData: z.object({
+    fullName: z.string().min(2, { message: "Full name must be at least 2 characters!" }),
+    presentCompany: z.string().min(2, { message: "Company name must be at least 2 characters!" }),
+    yearsOfExperience: z.number().min(0, { message: "Years of experience must be non-negative!" }),
+    domain: z.enum([
+      "SOFTWARE", "FRONTEND", "BACKEND", "PRODUCT_MANAGEMENT", "WEB_DEVELOPMENT", 
+      "MOBILE_DEVELOPMENT", "MACHINE_LEARNING", "DATA_SCIENCE", "BLOCKCHAIN", 
+      "CLOUD_COMPUTING", "CYBERSECURITY", "BUSINESS_MANAGEMENT", "FINANCE", 
+      "ACCOUNTING", "HUMAN_RESOURCES", "MARKETING", "SALES", "OPERATIONS", 
+      "STRATEGY", "PROJECT_MANAGEMENT", "SUPPLY_CHAIN_MANAGEMENT", "CONSULTING", 
+      "ENTREPRENEURSHIP", "BUSINESS_DEVELOPMENT", "BUSINESS_ANALYTICS", 
+      "ECONOMICS", "PUBLIC_RELATIONS"
+    ])
+  }).optional()
+}).refine((data) => {
+  // Ensure student data is provided for students
+  if (data.role === 'STUDENT') {
+    return data.studentData !== undefined;
+  }
+  // Ensure alumni data is provided for alumni  
+  if (data.role === 'ALUMNI') {
+    return data.alumniData !== undefined;
+  }
+  return true;
+}, {
+  message: "Role-specific data is required"
+});
 const signupUser = async (req, res) => {
   try {
-    // Validate the request body wrt schema
-    const validatedData = signUp_signIn_Schema.parse(req.body);
-    
-    // check if the user already exists
-    const userExist= await prisma.user.findUnique({
-      where:{
-       email:validatedData.email
-      }
-    })
+    const { username, email, password, role, studentData, alumniData } = req.body;
 
-    if(userExist){
-      return res.status(401).json({message:"User already exists with provided email Id"})
+    // Basic validation
+    if (!username || !email || !password || !role) {
+      return res.status(400).json({ 
+        message: "Username, email, password, and role are required" 
+      });
     }
 
-    const hashedPassword = await bcrypt.hash(validatedData.password, 10);
-    const user = await prisma.user.create({
-      data: {
-        username: validatedData.username,
-        email: validatedData.email,
-        password: hashedPassword,
-        role:validatedData.role
-      },
+    // Role-specific validation
+    if (role === "STUDENT" && !studentData) {
+      return res.status(400).json({ 
+        message: "Student data is required for student registration" 
+      });
+    }
+
+    if (role === "ALUMNI" && !alumniData) {
+      return res.status(400).json({ 
+        message: "Alumni data is required for alumni registration" 
+      });
+    }
+
+    // Check if the user already exists
+    const userExist = await prisma.user.findUnique({
+      where: {
+        email: email
+      }
     });
 
-    const token=jwt.sign({userId:user.id},process.env.JWT_SECRET)
-
-    return res.status(201).json({ message: "User created successfully!", token });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Validation failed.", errors: error.errors });
+    if (userExist) {
+      return res.status(401).json({ 
+        message: "User already exists with provided email Id" 
+      });
     }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Use transaction to ensure data consistency
+    const result = await prisma.$transaction(async (prisma) => {
+      // Create user
+      const user = await prisma.user.create({
+        data: {
+          username,
+          email,
+          password: hashedPassword,
+          role
+        },
+      });
+
+      // Create role-specific profile
+      if (role === "STUDENT") {
+        await prisma.student.create({
+          data: {
+            userId: user.id,
+            fullName: studentData.fullName,
+            cgpa: studentData.cgpa,
+            cv: studentData.cv,
+            department: studentData.department,
+            rollno: studentData.rollno,
+            domain: studentData.domain
+          }
+        });
+      } else if (role === "ALUMNI") {
+        await prisma.alumni.create({
+          data: {
+            userId: user.id,
+            fullName: alumniData.fullName,
+            presentCompany: alumniData.presentCompany,
+            yearsOfExperience: alumniData.yearsOfExperience,
+            domain: alumniData.domain
+          }
+        });
+      }
+
+      return user;
+    });
+
+    // Generate JWT token
+    const token = jwt.sign({ userId: result.id }, process.env.JWT_SECRET);
+
+    return res.status(201).json({ 
+      message: "User created successfully!", 
+      token,
+      user: {
+        id: result.id,
+        username: result.username,
+        email: result.email,
+        role: result.role
+      }
+    });
+
+  } catch (error) {
     console.error("Error during sign-up:", error);
-    res.status(500).json({ message: "Internal server error." });
+    
+    // Handle Prisma errors
+    if (error.code === 'P2002') {
+      return res.status(400).json({ 
+        message: "Email or username already exists" 
+      });
+    }
+    
+    if (error.code === 'P2003') {
+      return res.status(400).json({ 
+        message: "Invalid foreign key constraint" 
+      });
+    }
+
+    res.status(500).json({ 
+      message: "Internal server error.",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
 // Sign-in User Function
 const signinUser = async (req, res) => {
-  console.log(req.body)
   try {
-    if(!signUp_signIn_Schema.safeParse(req.body).success)
-      return res.status(400).json({ message: "Zod Validation failed.", errors: error.errors })
-
-    const { email, password } = req.body;
-
+    // Use the original schema for signin (only email, password needed)
+    const validatedData = signUp_signIn_Schema.parse(req.body);
+    
+    // Find user by email
     const user = await prisma.user.findUnique({
       where: {
-        email,
+        email: validatedData.email
       },
+      include: {
+        student: true,
+        alumni: true
+      }
     });
 
-    // If user is not found, return a 404 error
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(401).json({ 
+        message: "Invalid email or password" 
+      });
     }
 
-    // Compare the provided password with the hashed password in the database
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ message: "Invalid Password." }); // Unauthorized error if passwords don't match
+    // Check password
+    const isPasswordValid = await bcrypt.compare(validatedData.password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ 
+        message: "Invalid email or password" 
+      });
     }
 
-    // Generate a JWT token with the user's ID and respond with status code 200
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
 
     return res.status(200).json({
-      message: "Sign-in successful.",
+      message: "Login successful!",
       token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        profile: user.role === 'STUDENT' ? user.student : user.alumni
+      }
     });
+
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ 
+        message: "Validation failed.", 
+        errors: error.errors 
+      });
+    }
+    
     console.error("Error during sign-in:", error);
-    res.status(500).json({ message: "Internal server error." });
+    res.status(500).json({ 
+      message: "Internal server error." 
+    });
   }
 };
 
