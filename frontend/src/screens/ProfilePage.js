@@ -124,10 +124,10 @@ const ProfilePage = () => {
             ...(isAlumni
               ? {
                   alumniProfile: {
-                    fullName: basicProfile.fullName || null,
-                    presentCompany: basicProfile.presentCompany || null,
-                    yearsOfExperience: basicProfile.yearsOfExperience || null,
-                    domain: basicProfile.domain || null,
+                    fullName: basicProfile?.fullName || null,
+                    presentCompany: basicProfile?.presentCompany || null,
+                    yearsOfExperience: basicProfile?.yearsOfExperience || null,
+                    domain: basicProfile?.domain || null,
                     experiences: experiences || [],
                     newExperience: {
                       company: "",
@@ -140,12 +140,12 @@ const ProfilePage = () => {
                 }
               : {
                   studentProfile: {
-                    fullName: basicProfile.fullName || null,
-                    cgpa: basicProfile.cgpa || null,
-                    cv: basicProfile.cv || null,
-                    department: basicProfile.department || null,
-                    rollno: basicProfile.rollno || null,
-                    domain: basicProfile.domain || null,
+                    fullName: basicProfile?.fullName || null,
+                    cgpa: basicProfile?.cgpa || null,
+                    cv: basicProfile?.cv || null,
+                    department: basicProfile?.department || null,
+                    rollno: basicProfile?.rollno || null,
+                    domain: basicProfile?.domain || null,
                     experiences: experiences || [],
                     newExperience: {
                       title: "",
@@ -341,7 +341,12 @@ const ProfilePage = () => {
   };
 
   const currentProfile =
-    profile[profile.role === "ALUMNI" ? "alumniProfile" : "studentProfile"];
+  profile && profile.role
+    ? profile[profile.role === "ALUMNI" ? "alumniProfile" : "studentProfile"]
+    : null;
+    if (!currentProfile) {
+      return <div>Loading profile...</div>;
+    }
   const currentExperiences = currentProfile?.experiences || [];
 
   if (isProfileLoading) {
@@ -382,7 +387,7 @@ const ProfilePage = () => {
                     alt="Profile"
                     className="profile-photo"
                   />
-                  <h2>{currentProfile.fullName}</h2>
+                  <h2>{currentProfile.fullName || "No name available"}</h2>
                   <div className="role-pill">{profile.role}</div>
                 </div>
               </div>

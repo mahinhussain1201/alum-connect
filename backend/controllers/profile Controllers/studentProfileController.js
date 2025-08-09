@@ -89,20 +89,28 @@ const addBasicProfile = async (req, res) => {
 };
 
 const updateBasicProfile = async (req, res) => {
-  const studentId = req.studentId;
-  const basicProfile = req.body;
-  const updatedBasicProfile = await prisma.alumni.update({
-    where: { id: studentId },
-    data: basicProfile,
-  });
+  try {
+    const studentId = req.studentId;
+    const basicProfile = {
+      ...req.body,
+      cgpa: req.body.cgpa ? parseFloat(req.body.cgpa) : undefined,
+    };
 
-  return res
-    .status(403)
-    .json({
-      message: "Basic profile updated sucessfully!",
-      updateBasicProfile,
+    const updatedBasicProfile = await prisma.student.update({
+      where: { id: studentId },
+      data: basicProfile,
     });
+
+    return res.status(200).json({
+      message: "Basic profile updated successfully!",
+      updatedBasicProfile,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error updating profile", error });
+  }
 };
+
 
 const addExperience = async (req, res) => {
   const experience = experienceSchema.safeParse(req.body);
