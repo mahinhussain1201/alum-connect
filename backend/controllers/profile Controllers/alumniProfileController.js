@@ -45,12 +45,12 @@ const basicProfileSchema = z.object({
   ),
 });
 
-const experienceSchema = z.object({
-  company: z.string().min(1, { message: "Company name cannot be empty." }),
-  role: z.string().min(1, { message: "Role cannot be empty." }),
-  startDate: z.union([z.string().datetime(), z.null()]).optional(),
-  endDate: z.union([z.string().datetime(), z.null()]).optional(),
-  description: z.string().min(1, { message: "Description cannot be empty." }),
+const alumniExperienceSchema = z.object({
+  company: z.string().min(1, "Company is required"),
+  role: z.string().min(1, "Role is required"),
+  description: z.string().optional(),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().optional(),
 });
 
 // const experiencesSchema = z.array(experienceSchema).min(1, {
@@ -104,29 +104,39 @@ const updateBasicProfile = async (req, res) => {
 };
 
 const addExperience = async (req, res) => {
-  const alumniId = req.alumniId;
-  const experience = experienceSchema.safeParse(req.body);
+  const validation = alumniExperienceSchema.safeParse(req.body);
 
-  if (!experience.success) {
-    const errors = experience.error.errors.map((error) => ({
-      message: error.message,
-      path: error.path,
-    }));
-    return res.status(403).json({ message: "Zod validation errors.", errors });
+  if (!validation.success) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: validation.error.errors,
+    });
   }
 
-  const experincedata = {
-    ...experience.data,
-    alumniId,
-  };
+  try {
+    if (!req.alumniId) {
+      return res.status(403).json({ message: "Alumni profile not found" });
+    }
 
-  await prisma.alumniExperience.create({
-    data: experincedata,
-  });
+    const experienceData = {
+      ...validation.data,
+      startDate: new Date(validation.data.startDate), // required
+      endDate: validation.data.endDate ? new Date(validation.data.endDate) : null,
+      alumniId: req.alumniId,
+    };
 
-  return res
-    .status(200)
-    .json({ message: "Successfully added past experinces to the alumni." });
+    await prisma.alumniExperience.create({ data: experienceData });
+
+    return res
+      .status(201)
+      .json({ message: "Alumni experience added successfully" });
+  } catch (err) {
+    console.error("Error adding alumni experience:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      details: err.message,
+    });
+  }
 };
 
 const getBasicProfile = async (req, res) => {

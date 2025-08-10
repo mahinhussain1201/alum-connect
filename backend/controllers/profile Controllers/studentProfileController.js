@@ -44,14 +44,12 @@ const profileSchema = z.object({
     .optional(),
 });
 
-const experienceSchema = z.object({
-  title: z.string().min(1, { message: "Title cannot be empty." }),
-  description: z.string().min(1, { message: "Description cannot be empty." }),
-  techStacks: z
-    .array(z.string())
-    .min(1, { message: "Please enter atleast one techstack." }),
-  startDate: z.union([z.string().datetime(), z.null()]).optional(),
-  endDate: z.union([z.string().datetime(), z.null()]).optional(),
+const studentExperienceSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  techStacks: z.array(z.string()).min(1, "At least one tech stack is required"),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
 // const experiencesSchema = z
@@ -113,26 +111,39 @@ const updateBasicProfile = async (req, res) => {
 
 
 const addExperience = async (req, res) => {
-  const experience = experienceSchema.safeParse(req.body);
+  const validation = studentExperienceSchema.safeParse(req.body);
 
-  if (!experience.success) {
-    const errors = experience.error.errors.map((error) => ({
-      message: error.message,
-      path: error.path,
-    }));
-    return res.status(403).json({ message: "Zod validation errors.", errors });
+  if (!validation.success) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: validation.error.errors,
+    });
   }
 
-  const experienceData = {
-    ...experience.data,
-    studentId,
-  };
-  await prisma.studentExperience.create({
-    data: experienceData,
-  });
-  return res
-    .status(201)
-    .json({ message: "Student experiences are added successfully." });
+  try {
+    if (!req.studentId) {
+      return res.status(403).json({ message: "Student profile not found" });
+    }
+
+    const experienceData = {
+      ...validation.data,
+      startDate: validation.data.startDate ? new Date(validation.data.startDate) : null,
+      endDate: validation.data.endDate ? new Date(validation.data.endDate) : null,
+      studentId: req.studentId,
+    };
+
+    await prisma.studentExperience.create({ data: experienceData });
+
+    return res
+      .status(201)
+      .json({ message: "Student experience added successfully" });
+  } catch (err) {
+    console.error("Error adding student experience:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      details: err.message,
+    });
+  }
 };
 
 const getBasicProfile = async (req, res) => {

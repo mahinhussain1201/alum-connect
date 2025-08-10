@@ -20,17 +20,19 @@ export const updateBasicProfile = async (url, profileData) => {
   }
 };
 
-export const addExperience = async (url, experienceData) => {
+export const addExperience = async (url, data) => {
   try {
-    const token = localStorage.getItem("token");
-    const response=await axios.post(`${API_BASE_URL}/${url}`, experienceData, {
+    const token = localStorage.getItem("token"); 
+    const res = await axios.post(`http://localhost:8000/api/${url}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
     });
-    return response;
+    return res.data;
   } catch (error) {
     console.error("Error fetching profile:", error);
+    return { error: true, message: error.message };
   }
 };
 

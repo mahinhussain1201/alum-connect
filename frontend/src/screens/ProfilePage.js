@@ -232,7 +232,8 @@ const ProfilePage = () => {
   const handleSaveNewExperience = async () => {
     const profileType = profile.role === "ALUMNI" ? "alumniProfile" : "studentProfile";
   
-    if (!profile[profileType]?.newExperience) {
+    const newExp = profile[profileType]?.newExperience;
+    if (!newExp) {
       console.error("newExperience is undefined!");
       return;
     }
@@ -244,36 +245,35 @@ const ProfilePage = () => {
   
       const experienceData = profile.role === "ALUMNI"
         ? {
-            company: profile[profileType].newExperience.company,
-            role: profile[profileType].newExperience.role,
-            startDate: profile[profileType].newExperience.startDate,
-            endDate: profile[profileType].newExperience.endDate,
-            description: profile[profileType].newExperience.description,
+            company: newExp.company,
+            role: newExp.role,
+            startDate: newExp.startDate,
+            endDate: newExp.endDate,
+            description: newExp.description,
           }
         : {
-            title: profile[profileType].newExperience.title,
-            techStacks: profile[profileType].newExperience.techStacks,
-            startDate: profile[profileType].newExperience.startDate,
-            endDate: profile[profileType].newExperience.endDate,
-            description: profile[profileType].newExperience.description,
+            title: newExp.title,
+            techStacks: newExp.techStacks,
+            startDate: newExp.startDate,
+            endDate: newExp.endDate,
+            description: newExp.description,
           };
+      let response = await addExperience(url, experienceData);
   
-      const response = await addExperience(url, experienceData);
-  
-      if (response.ok) {
+      // If `addExperience` returns JSON, no `.ok` property exists
+      if (response && (response.ok || !response.error)) {
         setProfile((prev) => ({
           ...prev,
           [profileType]: {
             ...prev[profileType],
-            experiences: [
-              ...prev[profileType].experiences,
-              prev[profileType].newExperience,
-            ],
+            experiences: [...prev[profileType].experiences, newExp],
             newExperience: profile.role === "ALUMNI"
               ? { company: "", role: "", startDate: "", endDate: "", description: "" }
               : { title: "", techStacks: [], startDate: "", endDate: "", description: "" },
           },
         }));
+      } else {
+        console.error("Add experience failed:", response);
       }
     } catch (error) {
       console.error("Error while saving new experience:", error.message);
@@ -284,67 +284,52 @@ const ProfilePage = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!profile?.role) return;
+  
     try {
-      const url =
-        profile.role === "ALUMNI"
-          ? "alumni/updateBasicProfile"
-          : "student/updateBasicProfile";
-
-      const profileData =
-        profile.role === "ALUMNI"
-          ? {
-              fullName: profile.alumniProfile.fullName,
-              presentCompany: profile.alumniProfile.presentCompany,
-              domain: profile.alumniProfile.domain,
-              yearsOfExperience: profile.alumniProfile.yearsOfExperience,
-            }
-          : {
-              fullName: profile.studentProfile.fullName,
-              domain: profile.studentProfile.domain,
-              rollno: profile.studentProfile.rollno,
-              department: profile.studentProfile.department,
-              cv: profile.studentProfile.cv,
-              cgpa: profile.studentProfile.cgpa,
-            };
-
-      const updatedProfile = await updateBasicProfile(url, profileData);
-
-      setProfile((prev) => ({
-        ...prev,
-        [prev.role === "ALUMNI" ? "alumniProfile" : "studentProfile"]: {
-          ...prev[prev.role === "ALUMNI" ? "alumniProfile" : "studentProfile"],
-          ...(prev.role === "ALUMNI"
-            ? {
-                fullName: updatedProfile.fullName,
-                presentCompany: updatedProfile.presentCompany,
-                domain: updatedProfile.domain,
-                yearsOfExperience: updatedProfile.yearsOfExperience,
-              }
-            : {
-                fullName: updatedProfile.fullName,
-                domain: updatedProfile.domain,
-                rollno: updatedProfile.rollno,
-                department: updatedProfile.department,
-                cv: updatedProfile.cv,
-                cgpa: updatedProfile.cgpa,
-              }),
-        },
-      }));
-
-      console.log("Updated Profile:", updatedProfile);
+      const url = profile.role === "ALUMNI"
+        ? "alumni/updateBasicProfile"
+        : "student/updateBasicProfile";
+  
+      const profileData = profile.role === "ALUMNI"
+        ? {
+            fullName: profile.alumniProfile?.fullName || "",
+            presentCompany: profile.alumniProfile?.presentCompany || "",
+            domain: profile.alumniProfile?.domain || "",
+            yearsOfExperience: profile.alumniProfile?.yearsOfExperience || 0,
+          }
+        : {
+            fullName: profile.studentProfile?.fullName || "",
+            domain: profile.studentProfile?.domain || "",
+            rollno: profile.studentProfile?.rollno || "",
+            department: profile.studentProfile?.department || "",
+            cv: profile.studentProfile?.cv || "",
+            cgpa: profile.studentProfile?.cgpa || "",
+          };
+  
+      let updatedProfile = await updateBasicProfile(url, profileData);
+  
+      if (updatedProfile && (updatedProfile.ok || !updatedProfile.error)) {
+        setProfile((prev) => ({
+          ...prev,
+          [profile.role === "ALUMNI" ? "alumniProfile" : "studentProfile"]: {
+            ...prev[profile.role === "ALUMNI" ? "alumniProfile" : "studentProfile"],
+            ...updatedProfile,
+          },
+        }));
+      }
     } catch (error) {
       console.error("Profile update failed:", error);
     } finally {
       setIsEditing(false);
     }
-    console.log("Updated Profile:", profile);
   };
+  
 
-  const currentProfile =
-  profile && profile.role
-    ? profile[profile.role === "ALUMNI" ? "alumniProfile" : "studentProfile"]
-    : null;
-    if (!currentProfile) {
+  const currentProfile = profile?.role
+  ? profile[profile.role === "ALUMNI" ? "alumniProfile" : "studentProfile"]
+  : null;
+    if (isProfileLoading || !profile?.role || !currentProfile) {
       return <div>Loading profile...</div>;
     }
   const currentExperiences = currentProfile?.experiences || [];
@@ -387,7 +372,7 @@ const ProfilePage = () => {
                     alt="Profile"
                     className="profile-photo"
                   />
-                  <h2>{currentProfile.fullName || "No name available"}</h2>
+                  <h2>{currentProfile?.fullName || "No name available"}</h2>
                   <div className="role-pill">{profile.role}</div>
                 </div>
               </div>
@@ -399,13 +384,13 @@ const ProfilePage = () => {
                       <li>
                         <span className="info-label">Present Company:</span>
                         <span className="info-value">
-                          {currentProfile.presentCompany}
+                          {currentProfile?.presentCompany}
                         </span>
                       </li>
                       <li>
                         <span className="info-label">Years of Experience:</span>
                         <span className="info-value">
-                          {currentProfile.yearsOfExperience}
+                          {currentProfile?.yearsOfExperience}
                         </span>
                       </li>
                     </>
@@ -414,32 +399,32 @@ const ProfilePage = () => {
                       <li>
                         <span className="info-label">Roll Number:</span>
                         <span className="info-value">
-                          {currentProfile.rollno}
+                          {currentProfile?.rollno}
                         </span>
                       </li>
                       <li>
                         <span className="info-label">Department:</span>
                         <span className="info-value">
-                          {currentProfile.department}
+                          {currentProfile?.department}
                         </span>
                       </li>
                       <li>
                         <span className="info-label">CGPA:</span>
                         <span className="info-value">
-                          {currentProfile.cgpa || "N/A"}
+                          {currentProfile?.cgpa || "N/A"}
                         </span>
                       </li>
                     </>
                   )}
                   <li>
                     <span className="info-label">Domain:</span>
-                    <span className="info-value">{currentProfile.domain}</span>
+                    <span className="info-value">{currentProfile?.domain}</span>
                   </li>
                   {profile.role === "STUDENT" && (
                     <li>
                       <span className="info-label">Resume:</span>
                       <a
-                        href={currentProfile.cv}
+                        href={currentProfile?.cv}
                         className="cv-link"
                         target="_blank"
                         rel="noreferrer"
@@ -501,7 +486,7 @@ const ProfilePage = () => {
                             type="text"
                             className="form-input"
                             name="company"
-                            value={currentProfile.newExperience.company}
+                            value={currentProfile?.newExperience.company}
                             onChange={handleExperienceInputChange}
                           />
                         </div>
@@ -511,7 +496,7 @@ const ProfilePage = () => {
                             type="text"
                             className="form-input"
                             name="role"
-                            value={currentProfile.newExperience.role}
+                            value={currentProfile?.newExperience.role}
                             onChange={handleExperienceInputChange}
                           />
                         </div>
@@ -524,7 +509,7 @@ const ProfilePage = () => {
                             type="text"
                             className="form-input"
                             name="title"
-                            value={currentProfile.newExperience.title}
+                            value={currentProfile?.newExperience.title}
                             onChange={handleExperienceInputChange}
                           />
                         </div>
@@ -534,7 +519,7 @@ const ProfilePage = () => {
                             type="text"
                             className="form-input"
                             name="techStacks"
-                            value={currentProfile.newExperience.techStacks.join(
+                            value={currentProfile?.newExperience.techStacks.join(
                               ", "
                             )}
                             onChange={handleExperienceInputChange}
@@ -549,7 +534,7 @@ const ProfilePage = () => {
                           type="date"
                           className="form-input"
                           name="startDate"
-                          value={currentProfile.newExperience.startDate}
+                          value={currentProfile?.newExperience.startDate}
                           onChange={handleExperienceInputChange}
                         />
                       </div>
@@ -559,7 +544,7 @@ const ProfilePage = () => {
                           type="date"
                           className="form-input"
                           name="endDate"
-                          value={currentProfile.newExperience.endDate}
+                          value={currentProfile?.newExperience.endDate}
                           onChange={handleExperienceInputChange}
                         />
                       </div>
@@ -569,7 +554,7 @@ const ProfilePage = () => {
                       <textarea
                         className="form-textarea"
                         name="description"
-                        value={currentProfile.newExperience.description}
+                        value={currentProfile?.newExperience.description}
                         onChange={handleExperienceInputChange}
                       />
                     </div>
@@ -615,7 +600,7 @@ const ProfilePage = () => {
                 name={`${
                   profile.role === "ALUMNI" ? "alumniProfile" : "studentProfile"
                 }.fullName`}
-                value={currentProfile.fullName || ""}
+                value={currentProfile?.fullName || ""}
                 onChange={handleInputChange}
                 required
               />
@@ -629,7 +614,7 @@ const ProfilePage = () => {
                     type="text"
                     className="form-input"
                     name="alumniProfile.presentCompany"
-                    value={currentProfile.presentCompany}
+                    value={currentProfile?.presentCompany}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -639,7 +624,7 @@ const ProfilePage = () => {
                     type="number"
                     className="form-input"
                     name="alumniProfile.yearsOfExperience"
-                    value={currentProfile.yearsOfExperience}
+                    value={currentProfile?.yearsOfExperience}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -652,7 +637,7 @@ const ProfilePage = () => {
                     type="text"
                     className="form-input"
                     name="studentProfile.rollno"
-                    value={currentProfile.rollno}
+                    value={currentProfile?.rollno}
                     onChange={handleInputChange}
                     required
                   />
@@ -663,7 +648,7 @@ const ProfilePage = () => {
                     type="text"
                     className="form-input"
                     name="studentProfile.department"
-                    value={currentProfile.department}
+                    value={currentProfile?.department}
                     onChange={handleInputChange}
                     required
                   />
@@ -677,7 +662,7 @@ const ProfilePage = () => {
                     max="10"
                     className="form-input"
                     name="studentProfile.cgpa"
-                    value={currentProfile.cgpa || ""}
+                    value={currentProfile?.cgpa || ""}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -687,7 +672,7 @@ const ProfilePage = () => {
                     type="url"
                     className="form-input"
                     name="studentProfile.cv"
-                    value={currentProfile.cv}
+                    value={currentProfile?.cv}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -698,7 +683,7 @@ const ProfilePage = () => {
               <label className="form-label">Domain</label>
               <select
                 className="form-select"
-                value={currentProfile.domain}
+                value={currentProfile?.domain}
                 onChange={(e) =>
                   handleInputChange({
                     target: {
