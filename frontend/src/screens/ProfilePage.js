@@ -457,7 +457,8 @@ const ProfilePage = () => {
                               : exp.title}
                           </span>
                           <span className="dates">
-                            {exp.startDate} - {exp.endDate || "Present"}
+                            {new Date(exp.startDate).toLocaleDateString("en-GB")}- 
+                            {exp.endDate ? new Date(exp.endDate).toLocaleDateString("en-GB") : "Present"}
                           </span>
                         </div>
                         {profile.role === "STUDENT" && (
