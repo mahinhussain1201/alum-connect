@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './Mentor_Registration.css';
+import API_BASE_URL from "../config/api";
 
 const domains = [
   "SOFTWARE",
@@ -15,6 +16,14 @@ const domains = [
   "CYBERSECURITY",
 ];
 
+const menteeLevelsEnum = [
+  "SECOND_YEAR",
+  "THIRD_YEAR",
+  "FOURTH_YEAR",
+  "FIFTH_YEAR",
+  "RESEARCH"
+];
+
 const Mentor_Registration = () => {
   const [formData, setFormData] = useState({
     domains: [],
@@ -24,61 +33,103 @@ const Mentor_Registration = () => {
     menteeLevels: [],
     linkedinProfile: '',
     currentOrganization: '',
-    passingYear: ''
+    passingYear: '',
+    interests: []
   });
 
-  const formatDomain = (domain) => {
-    return domain.toLowerCase()
-      .split('_')
+  const formatDomain = (domain) =>
+    domain.toLowerCase().split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-  };
 
   const handleChange = (e) => {
     const { name, value, type, options } = e.target;
-    
-    if (type === 'select-multiple') {
+    if (e.target.multiple) {
       const selected = Array.from(options)
         .filter(option => option.selected)
         .map(option => option.value);
       setFormData(prev => ({ ...prev, [name]: selected }));
     } else if (type === 'checkbox') {
-      const checked = formData.menteeLevels.includes(value)
-        ? formData.menteeLevels.filter(lvl => lvl !== value)
-        : [...formData.menteeLevels, value];
-      setFormData(prev => ({ ...prev, menteeLevels: checked }));
+      const checked = formData[name].includes(value)
+        ? formData[name].filter(v => v !== value)
+        : [...formData[name], value];
+      setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form Data:', formData);
+
+    // Transform to match Zod enums
+    const payload = {
+      keywords: formData.domains.map(d => d.toUpperCase()), // matches Domain enum
+      experience: Number(formData.experience),
+      interaction: formData.interaction.toUpperCase().replace(" ", "_"), // matches InteractionLevel enum
+      maxMentees: Number(formData.maxMentees),
+      levelsOfMentees: formData.menteeLevels.map(l => l.toUpperCase().replace(" ", "_")), // matches MenteeLevel enum
+      linkedinProfile: formData.linkedinProfile || undefined,
+      currentOrganization: formData.currentOrganization || undefined,
+      passingYear: formData.passingYear ? Number(formData.passingYear) : undefined,
+      interests: formData.interests.map(i => i.toUpperCase().replace(" ", "_")), // matches MentorInterest enum
+    };
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/alumni/setMentorProfile`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      alert("Mentor registered successfully!");
+      window.location.href = "/";
+      alert("Mentor registered successfully!");
+      setFormData({
+        domains: [],
+        experience: '',
+        interaction: '',
+        maxMentees: 5,
+        menteeLevels: [],
+        linkedinProfile: '',
+        currentOrganization: '',
+        passingYear: '',
+        interests: []
+      });
+    } catch (err) {
+      console.error(err.message);
+      alert("Error: " + err.message);
+    }
   };
 
   return (
     <div className="mentor-registration">
       <h2>Register as a Mentor</h2>
       <form className="mentor-form" onSubmit={handleSubmit}>
+        
         {/* Domains */}
         <div className="form-group">
           <label>Areas of Expertise (Select multiple)</label>
           <select
             multiple
+            size={6}
             className="form-input"
             name="domains"
             value={formData.domains}
             onChange={handleChange}
             required
           >
-            {domains.map((domain) => (
+            {domains.map(domain => (
               <option key={domain} value={domain}>
                 {formatDomain(domain)}
               </option>
             ))}
           </select>
-          <small>Hold Ctrl/Cmd to select multiple options</small>
         </div>
 
         {/* Experience */}
@@ -97,7 +148,7 @@ const Mentor_Registration = () => {
 
         {/* Interaction Level */}
         <div className="form-group">
-          <label>Available Hours/Month</label>
+          <label>Interaction Level</label>
           <select
             className="form-input"
             name="interaction"
@@ -105,10 +156,11 @@ const Mentor_Registration = () => {
             onChange={handleChange}
             required
           >
-            <option value="">Select hours</option>
-            <option value="5">5 hours</option>
-            <option value="10">10 hours</option>
-            <option value="15">15 hours</option>
+            <option value="">Select interaction</option>
+            <option value="VERY_LOW">Very Low</option>
+            <option value="MODERATE">Moderate</option>
+            <option value="HIGH">High</option>
+
           </select>
         </div>
 
@@ -130,15 +182,16 @@ const Mentor_Registration = () => {
         <div className="form-group">
           <label>Mentee Levels</label>
           <div className="checkbox-group">
-            {['Beginner', 'Intermediate', 'Advanced'].map(level => (
+            {menteeLevelsEnum.map(level => (
               <label key={level}>
                 <input
                   type="checkbox"
+                  name="menteeLevels"
                   value={level}
                   checked={formData.menteeLevels.includes(level)}
                   onChange={handleChange}
                 />
-                {level}
+                {formatDomain(level)}
               </label>
             ))}
           </div>

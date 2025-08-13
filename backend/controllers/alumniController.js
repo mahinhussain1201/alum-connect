@@ -313,7 +313,69 @@ const sendMentorStatus = async (req, res) => {
     });
   }
 };
+const addMentorProfile = async (req, res) => {
+  try {
+    // Combine userId from token and body data
+    const payload = {
+      ...req.body,
+      userId: req.user.id // assuming authenticationToken middleware sets req.user
+    };
 
+    // Validate with Zod
+    const validatedData = MentorSchema.parse(payload);
+
+    // Save to DB (example: using Prisma)
+    const mentor = await db.mentor.create({
+      data: validatedData
+    });
+
+    res.status(201).json({ message: "Mentor profile created successfully", mentor });
+  } catch (error) {
+    console.error(error);
+    if (error.name === "ZodError") {
+      return res.status(400).json({ message: "Validation failed", errors: error.errors });
+    }
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const updateMentorProfile = async (req, res) => {
+  try {
+    // req.user is set by authenticationToken middleware
+    const alumniId = req.user.id;
+
+    // Validate data against Zod schema
+    const parsedData = MentorSchema.parse({
+      ...req.body,
+      userId: alumniId
+    });
+
+    // Find alumni
+    let alumni = await Alumni.findById(alumniId);
+    if (!alumni) {
+      return res.status(404).json({ message: "Alumni not found" });
+    }
+
+    // Attach mentor profile to alumni
+    alumni.mentorProfile = parsedData;
+    await alumni.save();
+
+    res.status(200).json({
+      message: "Mentor profile saved successfully",
+      mentorProfile: alumni.mentorProfile
+    });
+  } catch (error) {
+    console.error("Error in setMentorProfile:", error);
+
+    if (error.name === "ZodError") {
+      return res
+        .status(400)
+        .json({ message: "Validation failed", errors: error.errors });
+    }
+
+    res.status(500).json({ message: "Server error" });
+  }
+};
 module.exports = {
   postInternship,
   getAllApplications,
@@ -325,4 +387,6 @@ module.exports = {
   getMentorshipsForMentor,
   acceptMentorship,
   sendMentorStatus,
+  addMentorProfile, 
+  updateMentorProfile
 };
