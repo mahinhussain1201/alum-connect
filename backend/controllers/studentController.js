@@ -57,15 +57,25 @@ const applyInternship=async (req,res)=>{
     return res.status(201).json({message:"Successfully applied to the internship."})
 }
 
-const getAppliedInternships=async (req,res)=>{
-  const studentId=req.studentId;
+const getAppliedInternships = async (req, res) => {
+  try {
+    const studentId = req.studentId;
 
-  const appliedInternships=await prisma.internApplication.findMany({
-    studentId
-  })
+    const appliedInternships = await prisma.internApplication.findMany({
+      where: {
+        studentId: studentId
+      },
+      include: {
+        internship: true  // Include the related internship data
+      }
+    });
 
-  return res.status(201).json({appliedInternships})
-}
+    return res.status(200).json({ appliedInternships });
+  } catch (error) {
+    console.error("Error fetching applied internships:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 const getAcceptedInternships=async(req,res)=>{
   const studentId=req.studentId;

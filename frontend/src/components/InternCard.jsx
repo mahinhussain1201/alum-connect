@@ -42,6 +42,7 @@ const InternCard = ({
   const [Role, setRole] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [applicationStatus, setApplicationStatus] = useState(null);
 
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "short", day: "numeric" };
@@ -84,6 +85,34 @@ const InternCard = ({
 
     fetchData();
   }, [Role]);
+
+  useEffect(() => {
+    const checkApplicationStatus = async () => {
+      if (Role === 'STUDENT' && token) {
+        try {
+          const response = await axios.get(
+            `http://localhost:8000/api/student/getAppliedInternships`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          const appliedInternship = response.data.appliedInternships.find(
+            (app) => app.internshipId === id
+          );
+          if (appliedInternship) {
+            setHasApplied(true);
+            setApplicationStatus(appliedInternship.status);
+          }
+        } catch (error) {
+          console.error("Error checking application status:", error);
+        }
+      }
+    };
+    
+    checkApplicationStatus();
+  }, [Role, token, id]);
 
   const handleApplyClick = async (e) => {
     e.preventDefault();
@@ -203,7 +232,7 @@ const InternCard = ({
           <span>{criteria}</span>
         </div>
 
-        {role === "STUDENT" && internships.applicationStatus === null && (
+        {Role === "STUDENT" && (
           <button
             className={`intern-apply-button ${hasApplied ? "applied" : ""}`}
             onClick={handleApplyClick}
@@ -212,14 +241,16 @@ const InternCard = ({
             {isApplying ? (
               <span className="spinner"></span>
             ) : hasApplied ? (
-              "Applied ✅"
+              applicationStatus === 'PENDING' ? "Applied" : 
+              applicationStatus === 'ACCEPTED' ? "Accepted" :
+              applicationStatus === 'REJECTED' ? "Rejected" : "Applied"
             ) : (
               "Apply Now"
             )}
           </button>
         )}
 
-        {role === "ALUMNI" && (
+        {Role === "ALUMNI" && (
           <button className="intern-modify-button" onClick={handleModifyClick}>
             Manage
           </button>
