@@ -28,58 +28,58 @@ const Mentee_Dashboard = () => {
     
     
     // fetchMentorProfile(1).then(data=> console.log(data));
-    const dummyMentorships = [
-      {
-        id: 1,
-        mentorName: "John Doe",
-        keywords: ["SOFTWARE", "CLOUD_COMPUTING"],
-        experience: 8,
-        interaction: "HIGH",
-        maxMentees: 5,
-        currentMentees: 2,
-        levelsOfMentees: ["THIRD_YEAR", "FOURTH_YEAR"],
-        interests: ["MENTORING_AND_PARTNERSHIP"],
-        linkedinProfile: "https://linkedin.com/in/johndoe",
-        currentOrganization: "Google",
-        passingYear: 2015,
-        status: "PENDING",
-      },
-      {
-        id: 2,
-        mentorName: "Jane Smith",
-        keywords: ["BLOCKCHAIN", "CYBERSECURITY"],
-        experience: 6,
-        interaction: "MEDIUM",
-        maxMentees: 10,
-        currentMentees: 3,
-        levelsOfMentees: ["SECOND_YEAR", "THIRD_YEAR"],
-        interests: ["PRO_BONO_HELP"],
-        linkedinProfile: "https://linkedin.com/in/janesmith",
-        currentOrganization: "Microsoft",
-        passingYear: 2018,
-        status: "ACTIVE",
-      },
-      {
-        id: 3,
-        mentorName: "Mike Johnson",
-        keywords: ["MACHINE_LEARNING"],
-        experience: 7,
-        interaction: "LOW",
-        maxMentees: 8,
-        currentMentees: 5,
-        levelsOfMentees: ["FOURTH_YEAR"],
-        interests: ["PRO_BONO_HELP"],
-        linkedinProfile: "https://linkedin.com/in/mikejohnson",
-        currentOrganization: "Amazon",
-        passingYear: 2016,
-      },
-    ];
+    // const dummyMentorships = [
+    //   {
+    //     id: 1,
+    //     mentorName: "John Doe",
+    //     keywords: ["SOFTWARE", "CLOUD_COMPUTING"],
+    //     experience: 8,
+    //     interaction: "HIGH",
+    //     maxMentees: 5,
+    //     currentMentees: 2,
+    //     levelsOfMentees: ["THIRD_YEAR", "FOURTH_YEAR"],
+    //     interests: ["MENTORING_AND_PARTNERSHIP"],
+    //     linkedinProfile: "https://linkedin.com/in/johndoe",
+    //     currentOrganization: "Google",
+    //     passingYear: 2015,
+    //     status: "PENDING",
+    //   },
+    //   {
+    //     id: 2,
+    //     mentorName: "Jane Smith",
+    //     keywords: ["BLOCKCHAIN", "CYBERSECURITY"],
+    //     experience: 6,
+    //     interaction: "MEDIUM",
+    //     maxMentees: 10,
+    //     currentMentees: 3,
+    //     levelsOfMentees: ["SECOND_YEAR", "THIRD_YEAR"],
+    //     interests: ["PRO_BONO_HELP"],
+    //     linkedinProfile: "https://linkedin.com/in/janesmith",
+    //     currentOrganization: "Microsoft",
+    //     passingYear: 2018,
+    //     status: "ACTIVE",
+    //   },
+    //   {
+    //     id: 3,
+    //     mentorName: "Mike Johnson",
+    //     keywords: ["MACHINE_LEARNING"],
+    //     experience: 7,
+    //     interaction: "LOW",
+    //     maxMentees: 8,
+    //     currentMentees: 5,
+    //     levelsOfMentees: ["FOURTH_YEAR"],
+    //     interests: ["PRO_BONO_HELP"],
+    //     linkedinProfile: "https://linkedin.com/in/mikejohnson",
+    //     currentOrganization: "Amazon",
+    //     passingYear: 2016,
+    //   },
+    // ];
     // setMentorships(dummyMentorships);
     fetchMentors().then(data => {
       
       setMentorships(data)
       console.log(data);
-      console.log(dummyMentorships);
+      // console.log(dummyMentorships);
       
     });
     setIsLoading(false);
@@ -177,7 +177,7 @@ const Mentee_Dashboard = () => {
                 onClick={() => toggleDropdown("status")}
               >
                 <span>
-                  {selectedStatus ? `Status: ${selectedStatus}` : "All Statuses"}
+                  {selectedStatus ? `Status: ${selectedStatus}` : "All Status"}
                 </span>
                 <i
                   className={`fas fa-chevron-${

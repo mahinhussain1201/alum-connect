@@ -17,7 +17,7 @@ const MentorshipCard = ({
 }) => {
   const handleApply = () =>{
     sendMentorshipRequest(id); 
-    alert("Request Sent Successfully");
+    alert("Successfully Applied");
     
   }
   return (

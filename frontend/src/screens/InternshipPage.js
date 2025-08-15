@@ -378,7 +378,7 @@ const InternshipPage = () => {
                       }`}
                       onClick={() => handleStatusSelect("All Statuses")}
                     >
-                      All Statuses
+                      All Status
                       {selectedStatus === "" && (
                         <i className="fas fa-check"></i>
                       )}
