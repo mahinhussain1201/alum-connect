@@ -4,6 +4,7 @@ import InternCard from "../components/InternCard";
 import NavBar from "./NavBar";
 import { fetchInternships, fetchUserInfo } from "../components/fetchData";
 import { postNewInternship } from "../components/postData";
+import axios from 'axios';
 
 const domains = [
   "SOFTWARE",
@@ -70,6 +71,7 @@ const InternshipPage = () => {
   const [role, setRole] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [appliedInternships, setAppliedInternships] = useState([]);
   const filterRef = useRef(null);
 
   useEffect(() => {
@@ -108,6 +110,38 @@ const InternshipPage = () => {
 
     fetchData();
   }, [role]);
+
+  useEffect(() => {
+    const fetchAppliedInternships = async () => {
+      if (role === 'STUDENT') {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(
+            'http://localhost:8000/api/student/getAppliedInternships',
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setAppliedInternships(response.data.appliedInternships || []);
+        } catch (error) {
+          console.error('Error fetching applied internships:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAppliedInternships();
+  }, [role]);
+
+  const getApplicationStatus = (internshipId) => {
+    const application = appliedInternships.find(app => app.internshipId === internshipId);
+    return application ? application.status : null;
+  };
 
   // Click outside handler
   useEffect(() => {
@@ -560,14 +594,18 @@ const InternshipPage = () => {
         )}
 
         <div className="internship-list">
-          {filteredInternships.map((internship) => (
-            <InternCard
-              key={internship.id}
-              {...internship}
-              company={internship.company}
-              role={role}
-            />
-          ))}
+          {filteredInternships.map((internship) => {
+            const status = role === 'STUDENT' ? getApplicationStatus(internship.id) : null;
+            return (
+              <InternCard
+                key={internship.id}
+                {...internship}
+                company={internship.company}
+                role={role}
+                applicationStatus={status}
+              />
+            );
+          })}
         </div>
       </div>
     </>

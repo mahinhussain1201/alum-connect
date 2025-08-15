@@ -34,15 +34,16 @@ const InternCard = ({
   weeklyHours,
   company,
   role,
+  applicationStatus: propApplicationStatus,
 }) => {
   const navigate = useNavigate();
   const [isApplying, setIsApplying] = useState(false);
-  const [hasApplied, setHasApplied] = useState(false);
+  const [hasApplied, setHasApplied] = useState(!!propApplicationStatus);
   const [internships, setInternships] = useState([]);
   const [Role, setRole] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [applicationStatus, setApplicationStatus] = useState(null);
+  const [applicationStatus, setApplicationStatus] = useState(propApplicationStatus || null);
 
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "short", day: "numeric" };
@@ -87,6 +88,13 @@ const InternCard = ({
   }, [Role]);
 
   useEffect(() => {
+    if (propApplicationStatus) {
+      setApplicationStatus(propApplicationStatus);
+      setHasApplied(true);
+    }
+  }, [propApplicationStatus]);
+
+  useEffect(() => {
     const checkApplicationStatus = async () => {
       if (Role === 'STUDENT' && token) {
         try {
@@ -116,22 +124,31 @@ const InternCard = ({
 
   const handleApplyClick = async (e) => {
     e.preventDefault();
+    console.log('Apply button clicked for internship ID:', id);
     setIsApplying(true);
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
+      const response = await axios.post(
         `http://localhost:8000/api/student/applyInternship/${id}`,
         {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         }
       );
+      
+      console.log('Application successful:', response.data);
       setHasApplied(true);
+      setApplicationStatus('PENDING');
+      // Show success message
+      alert('Application submitted successfully!');
     } catch (error) {
       console.error("Application failed:", error);
+      console.error("Error response:", error.response?.data);
+      alert(`Failed to submit application: ${error.response?.data?.message || error.message}`);
     } finally {
       setIsApplying(false);
     }
@@ -232,29 +249,39 @@ const InternCard = ({
           <span>{criteria}</span>
         </div>
 
-        {Role === "STUDENT" && (
-          <button
-            className={`intern-apply-button ${hasApplied ? "applied" : ""}`}
-            onClick={handleApplyClick}
-            disabled={isApplying || hasApplied}
-          >
-            {isApplying ? (
-              <span className="spinner"></span>
-            ) : hasApplied ? (
-              applicationStatus === 'PENDING' ? "Applied" : 
-              applicationStatus === 'ACCEPTED' ? "Accepted" :
-              applicationStatus === 'REJECTED' ? "Rejected" : "Applied"
-            ) : (
-              "Apply Now"
-            )}
-          </button>
-        )}
+        <div className="button-container">
+          {applicationStatus && (
+            <span className={`application-status status-${applicationStatus.toLowerCase()}`}>
+              {applicationStatus === 'PENDING' ? 'Pending Review' : 
+               applicationStatus === 'ACCEPTED' ? 'Accepted' : 
+               applicationStatus === 'REJECTED' ? 'Not Selected' : applicationStatus}
+            </span>
+          )}
+          
+          {Role === "STUDENT" && (
+            <button
+              className={`intern-apply-button ${hasApplied ? "applied" : ""}`}
+              onClick={handleApplyClick}
+              disabled={isApplying || hasApplied}
+            >
+              {isApplying ? (
+                <span className="spinner"></span>
+              ) : hasApplied ? (
+                applicationStatus === 'PENDING' ? "Applied ✅" : 
+                applicationStatus === 'ACCEPTED' ? "Accepted 🎉" :
+                applicationStatus === 'REJECTED' ? "Not Selected" : "Applied"
+              ) : (
+                "Apply Now"
+              )}
+            </button>
+          )}
 
-        {Role === "ALUMNI" && (
-          <button className="intern-modify-button" onClick={handleModifyClick}>
-            Manage
-          </button>
-        )}
+          {Role === "ALUMNI" && (
+            <button className="intern-modify-button" onClick={handleModifyClick}>
+              Manage
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
