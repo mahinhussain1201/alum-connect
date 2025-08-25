@@ -17,26 +17,26 @@ const HomeScreen = () => {
       title: "Enroll as Startup Mentors",
       description: "Guide and support budding entrepreneurs",
       icon: <i className="fas fa-user-tie"></i>,
-      link: "/event2",
+      link: "/mentorDashboard",
     },
-    {
-      title: "Network with Alumni",
-      description: "Connect with graduates from your alma mater",
-      icon: <i className="fas fa-users"></i>,
-      link: "/event3",
-    },
-    {
-      title: "Articles",
-      description: "Read insightful articles from alumni.",
-      icon: <i className="fas fa-newspaper"></i>,
-      link: "/event4",
-    },
-    {
-      title: "Alumni Event 5",
-      description: "Join us for the upcoming alumni event.",
-      icon: <i className="fas fa-calendar-alt"></i>,
-      link: "/event5",
-    },
+    // {
+    //   title: "Network with Alumni",
+    //   description: "Connect with graduates from your alma mater",
+    //   icon: <i className="fas fa-users"></i>,
+    //   link: "/event3",
+    // },
+    // {
+    //   title: "Articles",
+    //   description: "Read insightful articles from alumni.",
+    //   icon: <i className="fas fa-newspaper"></i>,
+    //   link: "/event4",
+    // },
+    // {
+    //   title: "Alumni Event 5",
+    //   description: "Join us for the upcoming alumni event.",
+    //   icon: <i className="fas fa-calendar-alt"></i>,
+    //   link: "/event5",
+    // },
   ];
 
   const studentCards = [
@@ -52,24 +52,24 @@ const HomeScreen = () => {
       icon: <i className="fas fa-user-friends"></i>,
       link: "/menteeDashboard",
     },
-    {
-      title: "Chatpoint",
-      description: "Engage in discussions and chats.",
-      icon: <i className="fas fa-comments"></i>,
-      link: "/workshop3",
-    },
-    {
-      title: "Build Team",
-      description: "Collaborate and build your team.",
-      icon: <i className="fas fa-users-cog"></i>,
-      link: "/workshop4",
-    },
-    {
-      title: "Student Workshop 5",
-      description: "Join our student workshop for skills development.",
-      icon: <i className="fas fa-tools"></i>,
-      link: "/workshop5",
-    },
+    // {
+    //   title: "Chatpoint",
+    //   description: "Engage in discussions and chats.",
+    //   icon: <i className="fas fa-comments"></i>,
+    //   link: "/workshop3",
+    // },
+    // {
+    //   title: "Build Team",
+    //   description: "Collaborate and build your team.",
+    //   icon: <i className="fas fa-users-cog"></i>,
+    //   link: "/workshop4",
+    // },
+    // {
+    //   title: "Student Workshop 5",
+    //   description: "Join our student workshop for skills development.",
+    //   icon: <i className="fas fa-tools"></i>,
+    //   link: "/workshop5",
+    // },
   ];
 
   const [currentIndexAlumni, setCurrentIndexAlumni] = useState(0);

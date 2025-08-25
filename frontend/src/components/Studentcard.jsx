@@ -35,7 +35,7 @@ const StudentCard = ({
   isProcessing,
 }) => {
   const { internshipId } = useParams();
-  console.log(internshipId);
+  // console.log(internshipId);
 
   const formatDate = (dateString) => {
     if (!dateString) return "Present";

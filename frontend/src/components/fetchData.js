@@ -162,7 +162,7 @@ export const fetchMentors = async ()=>{
 export const fetchMentorships = async ()=>{
   try {
     const token = localStorage.getItem("token");
-
+    console.log("TOken:"+token)
     const response = await axios.get(
       `${API_BASE_URL}/alumni/getMentorshipsForMentors`,
       {
