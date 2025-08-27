@@ -5,8 +5,10 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import NavBar from "./NavBar";
 import { fetchUserInfo } from "../components/fetchData";
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 
 const HomeScreen = () => {
+  const navigate = useNavigate();
   const alumniCards = [
     {
       title: "Internships",
@@ -143,7 +145,7 @@ const HomeScreen = () => {
                     Empowering connections, fostering growth, and building a
                     stronger alumni community.
                   </p>
-                  <button className="join-button">
+                  <button className="join-button" onClick={() => navigate("/register")}>
                     <i className="fas fa-rocket" style={{ marginRight: '8px' }}></i>
                     Join Our Network
                   </button>
