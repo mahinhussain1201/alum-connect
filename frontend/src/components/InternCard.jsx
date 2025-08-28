@@ -263,7 +263,7 @@ const InternCard = ({
             </a>
           </div>
         ) : (
-          <p className="job-description">{jd}</p>
+          <p className="job-description"><b>Job Description: </b>{jd}</p>
         )}
 
         {/* Details Grid */}
@@ -562,8 +562,18 @@ const InternCard = ({
         .job-description {
           color: #64748b;
           line-height: 1.6;
-          margin-bottom: 1.5rem;
+          margin-bottom: 0.2rem;
+          padding:0.2rem;
           font-size: 0.95rem;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        .job-description b {
+          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
 
         .details-grid {
