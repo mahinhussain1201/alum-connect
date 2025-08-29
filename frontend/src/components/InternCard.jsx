@@ -196,186 +196,17 @@ const InternCard = ({
 
   return (
     <div className="intern-card">
+      {/* Status Bar */}
+      <div className="status-bar"></div>
+
       {/* Card Header */}
       <div className="card-header">
-        <div className="header-content">
+        <div className="company-section">
+          <div className="company-icon">
+            <i className="fas fa-building"></i>
+          </div>
           <div className="company-info">
-            <div className="company-icon">
-              <i className="fas fa-building"></i>
-            </div>
-            <div className="company-details">
-              <h3 className="company-name">{company}</h3>
-              <h2 className="job-title">
-                <Link
-                  to={`/jobs/${id}`}
-                  state={{
-                    role,
-                    job: {
-                      id,
-                      title,
-                      jd,
-                      domain,
-                      location,
-                      compensation,
-                      duration,
-                      startTime,
-                      endTime,
-                      criteria,
-                      weeklyHours,
-                      company,
-                    },
-                  }}
-                  className="title-link"
-                >
-                  {title}
-                </Link>
-              </h2>
-            </div>
-          </div>
-          <div className="domain-badge">
-            <i className="fas fa-code"></i>
-            <span>{domainMap[domain] || domain}</span>
-          </div>
-        </div>
-        
-        {applicationStatus && (
-          <div 
-            className="status-indicator"
-            style={{ '--status-color': getStatusColor(applicationStatus) }}
-          >
-            <i className={getStatusIcon(applicationStatus)}></i>
-            <span>
-              {applicationStatus === 'PENDING' ? 'Pending Review' : 
-               applicationStatus === 'ACCEPTED' ? 'Accepted' : 
-               applicationStatus === 'REJECTED' ? 'Not Selected' : applicationStatus}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Job Description */}
-      <div className="card-body">
-        {jdType === "URL" ? (
-          <div className="jd-link-container">
-            <i className="fas fa-external-link-alt"></i>
-            <a href={jd} target="_blank" rel="noopener noreferrer" className="jd-link">
-              View detailed job description
-            </a>
-          </div>
-        ) : (
-          <p className="job-description"><b>Job Description: </b>{jd}</p>
-        )}
-
-        {/* Details Grid */}
-        <div className="details-grid">
-          <div className="detail-item">
-            <div className="detail-icon">
-              <i className="fas fa-map-marker-alt"></i>
-            </div>
-            <div className="detail-content">
-              <span className="detail-label">Location</span>
-              <span className="detail-value">{location}</span>
-            </div>
-          </div>
-
-          <div className="detail-item">
-            <div className="detail-icon">
-              <i className="fas fa-dollar-sign"></i>
-            </div>
-            <div className="detail-content">
-              <span className="detail-label">Compensation</span>
-              <span className="detail-value">{compensation}</span>
-            </div>
-          </div>
-
-          <div className="detail-item">
-            <div className="detail-icon">
-              <i className="fas fa-calendar-alt"></i>
-            </div>
-            <div className="detail-content">
-              <span className="detail-label">Duration</span>
-              <span className="detail-value">{duration}</span>
-            </div>
-          </div>
-
-          {weeklyHours && (
-            <div className="detail-item">
-              <div className="detail-icon">
-                <i className="fas fa-clock"></i>
-              </div>
-              <div className="detail-content">
-                <span className="detail-label">Weekly Hours</span>
-                <span className="detail-value">{weeklyHours} hrs/week</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Timeline */}
-        <div className="timeline-section">
-          <div className="timeline-icon">
-            <i className="fas fa-calendar-week"></i>
-          </div>
-          <div className="timeline-content">
-            <span className="timeline-label">Program Timeline</span>
-            <div className="timeline-dates">
-              <span className="start-date">{formatDate(startTime)}</span>
-              <div className="date-separator">
-                <i className="fas fa-arrow-right"></i>
-              </div>
-              <span className="end-date">{formatDate(endTime)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Eligibility */}
-        <div className="eligibility-section">
-          <div className="eligibility-icon">
-            <i className="fas fa-user-graduate"></i>
-          </div>
-          <div className="eligibility-content">
-            <span className="eligibility-label">Eligibility Criteria</span>
-            <span className="eligibility-text">{criteria}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Card Footer */}
-      <div className="card-footer">
-        <div className="footer-actions">
-          {Role === "STUDENT" && (
-            <button
-              className={`apply-button ${hasApplied ? 'applied' : ''} ${isApplying ? 'loading' : ''}`}
-              onClick={handleApplyClick}
-              disabled={isApplying || hasApplied}
-            >
-              {isApplying && (
-                <div className="button-spinner">
-                  <i className="fas fa-spinner fa-spin"></i>
-                </div>
-              )}
-              <span className="button-text">
-                {isApplying ? "Applying..." : 
-                 hasApplied ? (
-                   applicationStatus === 'PENDING' ? "Applied" : 
-                   applicationStatus === 'ACCEPTED' ? "Accepted" :
-                   applicationStatus === 'REJECTED' ? "Not Selected" : "Applied"
-                 ) : "Apply Now"}
-              </span>
-              {!isApplying && !hasApplied && <i className="fas fa-paper-plane"></i>}
-              {hasApplied && applicationStatus === 'ACCEPTED' && <i className="fas fa-check"></i>}
-              {hasApplied && applicationStatus === 'PENDING' && <i className="fas fa-clock"></i>}
-            </button>
-          )}
-
-          {Role === "ALUMNI" && (
-            <button className="manage-button" onClick={handleModifyClick}>
-              <i className="fas fa-cog"></i>
-              <span>Manage Internship</span>
-            </button>
-          )}
-
-          <button className="view-details-button">
+            <div className="company-name">{company}</div>
             <Link
               to={`/jobs/${id}`}
               state={{
@@ -395,63 +226,220 @@ const InternCard = ({
                   company,
                 },
               }}
-              className="details-link"
+              className="job-title"
             >
-              <i className="fas fa-eye"></i>
-              <span>View Details</span>
+              {title}
             </Link>
-          </button>
+          </div>
         </div>
+
+        <div className="header-badges">
+          <div className="domain-badge">
+            <i className="fas fa-code"></i>
+            <span>{domainMap[domain] || domain}</span>
+          </div>
+          
+          {applicationStatus && (
+            <div 
+              className="status-badge"
+              style={{ '--status-color': getStatusColor(applicationStatus) }}
+            >
+              <i className={getStatusIcon(applicationStatus)}></i>
+              <span>
+                {applicationStatus === 'PENDING' ? 'Pending' : 
+                 applicationStatus === 'ACCEPTED' ? 'Accepted' : 
+                 applicationStatus === 'REJECTED' ? 'Rejected' : applicationStatus}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Job Description Section */}
+      <div className="jd-section">
+        {jdType === "URL" ? (
+          <div className="jd-link">
+            <i className="fas fa-external-link-alt"></i>
+            <a href={jd} target="_blank" rel="noopener noreferrer">
+              View Job Description
+            </a>
+          </div>
+        ) : (
+          <div className="jd-text">
+            <span className="jd-label">Description:</span>
+            <p>{jd}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Key Details Grid */}
+      <div className="details-section">
+        <div className="detail-row">
+          <div className="detail-item">
+            <i className="fas fa-map-marker-alt"></i>
+            <div>
+              <span className="detail-label">Location</span>
+              <span className="detail-value">{location}</span>
+            </div>
+          </div>
+          
+          <div className="detail-item">
+            <i className="fas fa-dollar-sign"></i>
+            <div>
+              <span className="detail-label">Compensation</span>
+              <span className="detail-value">{compensation}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="detail-row">
+          <div className="detail-item">
+            <i className="fas fa-calendar-alt"></i>
+            <div>
+              <span className="detail-label">Duration</span>
+              <span className="detail-value">{duration}</span>
+            </div>
+          </div>
+          
+          {weeklyHours && (
+            <div className="detail-item">
+              <i className="fas fa-clock"></i>
+              <div>
+                <span className="detail-label">Weekly Hours</span>
+                <span className="detail-value">{weeklyHours} hrs</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Timeline Section */}
+      <div className="timeline-section">
+        <div className="timeline-header">
+          <i className="fas fa-calendar-week"></i>
+          <span>Program Timeline</span>
+        </div>
+        <div className="timeline-dates">
+          <div className="date-item">
+            <span className="date-label">Start</span>
+            <span className="date-value">{formatDate(startTime)}</span>
+          </div>
+          <div className="timeline-arrow">
+            <i className="fas fa-arrow-right"></i>
+          </div>
+          <div className="date-item">
+            <span className="date-label">End</span>
+            <span className="date-value">{formatDate(endTime)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Eligibility Section */}
+      <div className="eligibility-section">
+        <div className="eligibility-header">
+          <i className="fas fa-user-graduate"></i>
+          <span>Eligibility Criteria</span>
+        </div>
+        <p className="eligibility-text">{criteria}</p>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="actions-section">
+        {Role === "STUDENT" && (
+          <button
+            className={`action-btn primary-btn ${hasApplied ? 'applied' : ''} ${isApplying ? 'loading' : ''}`}
+            onClick={handleApplyClick}
+            disabled={isApplying || hasApplied}
+          >
+            {isApplying && <i className="fas fa-spinner fa-spin"></i>}
+            <span>
+              {isApplying ? "Applying..." : 
+               hasApplied ? (
+                 applicationStatus === 'PENDING' ? "Applied" : 
+                 applicationStatus === 'ACCEPTED' ? "Accepted" :
+                 applicationStatus === 'REJECTED' ? "Rejected" : "Applied"
+               ) : "Apply Now"}
+            </span>
+            {!isApplying && !hasApplied && <i className="fas fa-paper-plane"></i>}
+          </button>
+        )}
+
+        {Role === "ALUMNI" && (
+          <button className="action-btn manage-btn" onClick={handleModifyClick}>
+            <i className="fas fa-cog"></i>
+            <span>Manage</span>
+          </button>
+        )}
+
+        <Link
+          to={`/jobs/${id}`}
+          state={{
+            role,
+            job: {
+              id,
+              title,
+              jd,
+              domain,
+              location,
+              compensation,
+              duration,
+              startTime,
+              endTime,
+              criteria,
+              weeklyHours,
+              company,
+            },
+          }}
+          className="action-btn secondary-btn"
+        >
+          <i className="fas fa-eye"></i>
+          <span>View Details</span>
+        </Link>
       </div>
 
       <style jsx>{`
         .intern-card {
           background: white;
-          border-radius: 20px;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 16px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 1px solid #e2e8f0;
           overflow: hidden;
           transition: all 0.3s ease;
           position: relative;
+          max-width: 100%;
         }
 
-        .intern-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
+        .intern-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .status-bar {
           height: 4px;
           background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
         }
 
-        .intern-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-        }
-
-        /* Header */
+        /* Header Section */
         .card-header {
-          padding: 2rem 2rem 1rem;
-          position: relative;
-        }
-
-        .header-content {
+          padding: 1.5rem;
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          margin-bottom: 1rem;
+          gap: 1rem;
+          flex-wrap: wrap;
         }
 
-        .company-info {
+        .company-section {
           display: flex;
+          align-items: flex-start;
           gap: 1rem;
           flex: 1;
+          min-width: 0;
         }
 
         .company-icon {
-          width: 50px;
-          height: 50px;
+          width: 48px;
+          height: 48px;
           background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
           border-radius: 12px;
           display: flex;
@@ -462,208 +450,16 @@ const InternCard = ({
 
         .company-icon i {
           color: white;
-          font-size: 1.3rem;
+          font-size: 1.25rem;
         }
 
-        .company-details {
+        .company-info {
           flex: 1;
+          min-width: 0;
         }
 
         .company-name {
-          font-size: 0.95rem;
-          font-weight: 600;
-          color: #64748b;
-          margin: 0 0 0.5rem 0;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .job-title {
-          font-size: 1.4rem;
-          font-weight: 800;
-          color: #1e293b;
-          margin: 0;
-          line-height: 1.2;
-        }
-
-        .title-link {
-          color: inherit;
-          text-decoration: none;
-          transition: color 0.3s ease;
-        }
-
-        .title-link:hover {
-          color: #3b82f6;
-        }
-
-        .domain-badge {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-          border: 2px solid #e2e8f0;
-          padding: 0.5rem 1rem;
-          border-radius: 25px;
-          font-size: 0.85rem;
-          font-weight: 600;
-          color: #475569;
-          white-space: nowrap;
-        }
-
-        .domain-badge i {
-          color: #3b82f6;
-        }
-
-        .status-indicator {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: rgba(var(--status-color-rgb, 100, 116, 139), 0.1);
-          color: var(--status-color, #64748b);
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-size: 0.85rem;
-          font-weight: 600;
-          border: 1px solid rgba(var(--status-color-rgb, 100, 116, 139), 0.2);
-        }
-
-        /* Body */
-        .card-body {
-          padding: 0 2rem 1rem;
-        }
-
-        .jd-link-container {
-          display: flex;
-          align-items: center;
-          gap: 0.8rem;
-          padding: 1rem;
-          background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-          border-radius: 12px;
-          margin-bottom: 1.5rem;
-          border: 1px solid #e2e8f0;
-        }
-
-        .jd-link-container i {
-          color: #3b82f6;
-          font-size: 1rem;
-        }
-
-        .jd-link {
-          color: #3b82f6;
-          text-decoration: none;
-          font-weight: 600;
-          transition: color 0.3s ease;
-        }
-
-        .jd-link:hover {
-          color: #1e40af;
-        }
-
-        .job-description {
-          color: #64748b;
-          line-height: 1.6;
-          margin-bottom: 0.2rem;
-          padding:0.2rem;
-          font-size: 0.95rem;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-
-        .job-description b {
-          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        .details-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 1rem;
-          margin-bottom: 1.5rem;
-        }
-
-        .detail-item {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          padding: 1rem;
-          background: #f8fafc;
-          border-radius: 12px;
-          border: 1px solid #e2e8f0;
-        }
-
-        .detail-icon {
-          width: 40px;
-          height: 40px;
-          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .detail-icon i {
-          color: white;
-          font-size: 1rem;
-        }
-
-        .detail-content {
-          flex: 1;
-        }
-
-        .detail-label {
-          display: block;
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: #64748b;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 0.25rem;
-        }
-
-        .detail-value {
-          display: block;
-          font-weight: 700;
-          color: #1e293b;
-          font-size: 0.9rem;
-        }
-
-        .timeline-section, .eligibility-section {
-          display: flex;
-          align-items: flex-start;
-          gap: 1rem;
-          padding: 1rem;
-          background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-          border-radius: 12px;
-          margin-bottom: 1rem;
-          border: 1px solid #e2e8f0;
-        }
-
-        .timeline-icon, .eligibility-icon {
-          width: 40px;
-          height: 40px;
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .timeline-icon i, .eligibility-icon i {
-          color: white;
-          font-size: 1rem;
-        }
-
-        .timeline-content, .eligibility-content {
-          flex: 1;
-        }
-
-        .timeline-label, .eligibility-label {
-          display: block;
-          font-size: 0.75rem;
+          font-size: 0.875rem;
           font-weight: 600;
           color: #64748b;
           text-transform: uppercase;
@@ -671,175 +467,368 @@ const InternCard = ({
           margin-bottom: 0.5rem;
         }
 
-        .timeline-dates {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .start-date, .end-date {
+        .job-title {
+          font-size: 1.25rem;
           font-weight: 700;
           color: #1e293b;
-          font-size: 0.9rem;
+          text-decoration: none;
+          line-height: 1.3;
+          display: block;
+          transition: color 0.3s ease;
         }
 
-        .date-separator {
+        .job-title:hover {
           color: #3b82f6;
         }
 
-        .eligibility-text {
-          font-weight: 600;
-          color: #1e293b;
-          font-size: 0.9rem;
-          line-height: 1.4;
-        }
-
-        /* Footer */
-        .card-footer {
-          padding: 1.5rem 2rem 2rem;
-          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-          border-top: 1px solid #e2e8f0;
-        }
-
-        .footer-actions {
+        .header-badges {
           display: flex;
-          gap: 1rem;
-          flex-wrap: wrap;
+          flex-direction: column;
+          gap: 0.5rem;
+          align-items: flex-end;
         }
 
-        .apply-button, .manage-button, .view-details-button {
+        .domain-badge {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          padding: 12px 20px;
-          border-radius: 12px;
+          background: #f1f5f9;
+          border: 1px solid #e2e8f0;
+          padding: 0.5rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.75rem;
           font-weight: 600;
-          font-size: 0.9rem;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          border: none;
-          text-decoration: none;
-          position: relative;
-          overflow: hidden;
+          color: #475569;
+          white-space: nowrap;
         }
 
-        .apply-button {
-          background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-          color: white;
+        .domain-badge i {
+          color: #3b82f6;
+          font-size: 0.875rem;
+        }
+
+        .status-badge {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: rgba(var(--status-color-rgb, 100, 116, 139), 0.1);
+          color: var(--status-color, #64748b);
+          padding: 0.375rem 0.75rem;
+          border-radius: 16px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          border: 1px solid rgba(var(--status-color-rgb, 100, 116, 139), 0.2);
+          white-space: nowrap;
+        }
+
+        /* Job Description Section */
+        .jd-section {
+          padding: 0 1.5rem 1rem;
+        }
+
+        .jd-link {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 1rem;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+        }
+
+        .jd-link i {
+          color: #3b82f6;
+        }
+
+        .jd-link a {
+          color: #3b82f6;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.875rem;
+        }
+
+        .jd-link a:hover {
+          text-decoration: underline;
+        }
+
+        .jd-text .jd-label {
+          font-weight: 600;
+          color: #1e293b;
+          font-size: 0.875rem;
+        }
+
+        .jd-text p {
+          color: #64748b;
+          margin: 0.5rem 0 0;
+          line-height: 1.5;
+          font-size: 0.875rem;
+        }
+
+        /* Details Section */
+        .details-section {
+          padding: 0 1.5rem 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .detail-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+        }
+
+        .detail-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+        }
+
+        .detail-item i {
+          color: #3b82f6;
+          font-size: 1rem;
+          width: 16px;
+          text-align: center;
+        }
+
+        .detail-item div {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .detail-label {
+          display: block;
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: #64748b;
+          margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+          display: block;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #1e293b;
+        }
+
+        /* Timeline Section */
+        .timeline-section {
+          padding: 0 1.5rem 1rem;
+        }
+
+        .timeline-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 0.75rem;
+          font-weight: 600;
+          color: #1e293b;
+          font-size: 0.875rem;
+        }
+
+        .timeline-header i {
+          color: #10b981;
+        }
+
+        .timeline-dates {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: #f0fdf4;
+          border: 1px solid #dcfce7;
+          border-radius: 12px;
+          padding: 1rem;
+        }
+
+        .date-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .date-label {
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: #64748b;
+          margin-bottom: 0.25rem;
+        }
+
+        .date-value {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #1e293b;
+        }
+
+        .timeline-arrow {
+          color: #10b981;
+          font-size: 1.125rem;
+        }
+
+        /* Eligibility Section */
+        .eligibility-section {
+          padding: 0 1.5rem 1rem;
+        }
+
+        .eligibility-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 0.75rem;
+          font-weight: 600;
+          color: #1e293b;
+          font-size: 0.875rem;
+        }
+
+        .eligibility-header i {
+          color: #8b5cf6;
+        }
+
+        .eligibility-text {
+          background: #faf5ff;
+          border: 1px solid #e9d5ff;
+          border-radius: 12px;
+          padding: 1rem;
+          margin: 0;
+          color: #6b21a8;
+          font-size: 0.875rem;
+          line-height: 1.5;
+          font-weight: 500;
+        }
+
+        /* Actions Section */
+        .actions-section {
+          padding: 1.5rem;
+          background: #f8fafc;
+          border-top: 1px solid #e2e8f0;
+          display: flex;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+        }
+
+        .action-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1rem;
+          border-radius: 10px;
+          font-weight: 600;
+          font-size: 0.875rem;
+          text-decoration: none;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s ease;
           flex: 1;
           min-width: 120px;
         }
 
-        .apply-button:not(:disabled):hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        .primary-btn {
+          background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+          color: white;
         }
 
-        .apply-button.applied {
+        .primary-btn:not(:disabled):hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .primary-btn.applied {
           background: linear-gradient(135deg, #64748b 0%, #475569 100%);
         }
 
-        .apply-button.applied.accepted {
+        .primary-btn.applied[data-status="ACCEPTED"] {
           background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
-        .apply-button:disabled {
+        .primary-btn:disabled {
           opacity: 0.7;
           cursor: not-allowed;
-          transform: none;
         }
 
-        .button-spinner {
-          position: absolute;
-          left: 15px;
-        }
-
-        .apply-button.loading .button-text {
-          margin-left: 25px;
-        }
-
-        .manage-button {
+        .manage-btn {
           background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
           color: white;
-          flex: 1;
-          min-width: 150px;
         }
 
-        .manage-button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        .manage-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
         }
 
-        .view-details-button {
+        .secondary-btn {
           background: white;
-          border: 2px solid #e2e8f0;
           color: #64748b;
-          min-width: 130px;
+          border: 2px solid #e2e8f0;
         }
 
-        .view-details-button:hover {
+        .secondary-btn:hover {
           border-color: #3b82f6;
           color: #3b82f6;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
-        }
-
-        .details-link {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          text-decoration: none;
-          color: inherit;
+          transform: translateY(-1px);
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-          .header-content {
+          .card-header {
             flex-direction: column;
-            gap: 1rem;
+            align-items: stretch;
           }
 
-          .domain-badge {
-            align-self: flex-start;
+          .company-section {
+            margin-bottom: 1rem;
           }
 
-          .details-grid {
+          .header-badges {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+          }
+
+          .detail-row {
             grid-template-columns: 1fr;
-            gap: 0.8rem;
           }
 
           .timeline-dates {
             flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
+            gap: 1rem;
           }
 
-          .date-separator {
+          .timeline-arrow {
             transform: rotate(90deg);
           }
 
-          .footer-actions {
+          .actions-section {
             flex-direction: column;
           }
 
-          .apply-button, .manage-button, .view-details-button {
+          .action-btn {
             flex: none;
-            width: 100%;
           }
         }
 
         @media (max-width: 480px) {
           .intern-card {
-            border-radius: 15px;
+            margin: 0.5rem;
+            border-radius: 12px;
           }
 
-          .card-header, .card-body, .card-footer {
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
+          .card-header,
+          .jd-section,
+          .details-section,
+          .timeline-section,
+          .eligibility-section,
+          .actions-section {
+            padding-left: 1rem;
+            padding-right: 1rem;
           }
 
-          .company-info {
-            gap: 0.8rem;
+          .company-section {
+            gap: 0.75rem;
           }
 
           .company-icon {
@@ -848,7 +837,13 @@ const InternCard = ({
           }
 
           .job-title {
-            font-size: 1.2rem;
+            font-size: 1.125rem;
+          }
+
+          .header-badges {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
           }
         }
       `}</style>
