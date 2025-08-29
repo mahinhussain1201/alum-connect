@@ -277,16 +277,16 @@ const InternCard = ({
         <div className="detail-row">
           <div className="detail-item">
             <i className="fas fa-map-marker-alt"></i>
-            <div>
-              <span className="detail-label">Location</span>
+            <div className="detail-content">
+              <span className="detail-label">Location:</span>
               <span className="detail-value">{location}</span>
             </div>
           </div>
           
           <div className="detail-item">
             <i className="fas fa-dollar-sign"></i>
-            <div>
-              <span className="detail-label">Compensation</span>
+            <div className="detail-content">
+              <span className="detail-label">Compensation:</span>
               <span className="detail-value">{compensation}</span>
             </div>
           </div>
@@ -295,8 +295,8 @@ const InternCard = ({
         <div className="detail-row">
           <div className="detail-item">
             <i className="fas fa-calendar-alt"></i>
-            <div>
-              <span className="detail-label">Duration</span>
+            <div className="detail-content">
+              <span className="detail-label">Duration:</span>
               <span className="detail-value">{duration}</span>
             </div>
           </div>
@@ -304,8 +304,8 @@ const InternCard = ({
           {weeklyHours && (
             <div className="detail-item">
               <i className="fas fa-clock"></i>
-              <div>
-                <span className="detail-label">Weekly Hours</span>
+              <div className="detail-content">
+                <span className="detail-label">Weekly Hours:</span>
                 <span className="detail-value">{weeklyHours} hrs</span>
               </div>
             </div>
@@ -600,12 +600,19 @@ const InternCard = ({
           min-width: 0;
         }
 
+        .detail-content {
+          display: flex;
+          flex-direction: row; 
+          align-items: center;
+          gap: 0.5rem;
+        }
+
         .detail-label {
           display: block;
-          font-size: 0.75rem;
-          font-weight: 500;
+          font-size: 0.875rem;
+          font-weight: 600;
           color: #64748b;
-          margin-bottom: 0.25rem;
+          text-transform: uppercase;
         }
 
         .detail-value {
@@ -613,6 +620,7 @@ const InternCard = ({
           font-size: 0.875rem;
           font-weight: 600;
           color: #1e293b;
+          text-transform: uppercase;
         }
 
         /* Timeline Section */

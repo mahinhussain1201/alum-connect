@@ -92,6 +92,7 @@ const Card = ({ title, description, icon, link, disabled, disabledMessage }) => 
           border-radius: 20px;
           padding: 2rem;
           min-height: 200px;
+          width: 320px; 
           cursor: pointer;
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
