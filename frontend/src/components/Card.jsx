@@ -9,39 +9,39 @@ const Card = ({ title, description, icon, link, disabled, disabledMessage }) => 
   const [showTooltip, setShowTooltip] = useState(false);
   const [isMentor, setIsMentor] = useState(null);
 
-  const handleClick = async () => {
-    if (title === "Enroll as Startup Mentors") {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login");
-        return;
-      }
+  // const handleClick = async () => {
+  //   if (title === "Enroll as Startup Mentors") {
+  //     const token = localStorage.getItem("token");
+  //     if (!token) {
+  //       navigate("/login");
+  //       return;
+  //     }
   
-      try {
-        const response = await axios.get("http://localhost:8000/api/alumni/mentorshipStatus", {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch((error)=>console.log(error)
-        );
-        console.log(response.data.isMentor);
+  //     try {
+  //       const response = await axios.get("http://localhost:8000/api/alumni/mentorshipStatus", {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       }).catch((error)=>console.log(error)
+  //       );
+  //       console.log(response.data.isMentor);
         
-        // Navigate based on API response
-        navigate(response.data.isMentor ? "/mentorDashboard" : "/mentorRegistration");
+  //       // Navigate based on API response
+  //       navigate(response.data.isMentor ? "/mentorDashboard" : "/mentorRegistration");
         
-      } catch (error) {
-        console.error("Error checking mentor status:", error);
-        alert("Failed to check mentor status. Please try again.");
-      }
-      return;
-    }
+  //     } catch (error) {
+  //       console.error("Error checking mentor status:", error);
+  //       alert("Failed to check mentor status. Please try again.");
+  //     }
+  //     return;
+  //   }
   
-    if (!disabled) navigate(link);
-  };
+  //   if (!disabled) navigate(link);
+  // };
 
   return (
     <>
       <div
         className={`modern-card ${disabled ? "disabled" : ""}`}
-        onClick={handleClick}
+        // onClick={handleClick}
         onMouseMove={(e) => {
           if (disabled) {
             setTooltipPosition({ x: e.clientX, y: e.clientY });

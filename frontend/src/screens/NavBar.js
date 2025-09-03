@@ -44,8 +44,8 @@ function NavBar() {
     { path: "/aboutus", label: "About Us", icon: Users },
     { path: "/register", label: "Register", icon: UserPlus },
     { path: "/activities", label: "Activities", icon: Activity },
-    { path: "/latest", label: "Latest", icon: Newspaper },
-    { path: "/content", label: "Content", icon: FileText },
+    // { path: "/latest", label: "Latest", icon: Newspaper },
+    // { path: "/content", label: "Content", icon: FileText },
   ];
 
   const NavLink = ({ to, children, className = "", onClick, style = {} }) => (
