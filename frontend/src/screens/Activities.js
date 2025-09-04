@@ -1,3 +1,4 @@
+//FIX: Authentication Error: jwt malformed
 import React, { useEffect, useState, useRef } from "react";
 import "./Activities.css";
 import NavBar from "./NavBar";
