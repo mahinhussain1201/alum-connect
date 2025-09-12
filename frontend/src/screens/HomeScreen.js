@@ -11,8 +11,8 @@ const HomeScreen = () => {
   const navigate = useNavigate();
   const alumniCards = [
     {
-      title: "Internships",
-      description: "Find internship opportunities through alumni network",
+      title: "Float Projects/Internships",
+      description: "Find students from IIT KGP",
       icon: <i className="fas fa-briefcase"></i>,
       link: "/internships",
     },

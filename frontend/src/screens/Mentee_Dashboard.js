@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MentorshipCard from "../components/MentorshipCard";
 import NavBar from "./NavBar";
 import {fetchMentors,fetchMentorProfile} from "../components/fetchData"
@@ -23,6 +23,7 @@ const Mentee_Dashboard = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
+  const filterRef = useRef(null);
 
   useEffect(() => {
     fetchMentors().then(data => {
@@ -32,20 +33,39 @@ const Mentee_Dashboard = () => {
     setIsLoading(false);
   }, []);
 
+  // Click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const toggleDropdown = (type) => {
     setOpenDropdown(openDropdown === type ? null : type);
   };
 
   const handleDomainSelect = (domain) => {
-    setSelectedDomains((prev) =>
-      prev.includes(domain)
-        ? prev.filter((d) => d !== domain)
-        : [...prev, domain]
-    );
+    if (domain === "All Domains") {
+      setSelectedDomains([]);
+    } else {
+      setSelectedDomains((prev) =>
+        prev.includes(domain)
+          ? prev.filter((d) => d !== domain)
+          : [...prev, domain]
+      );
+    }
   };
 
   const handleStatusSelect = (status) => {
-    setSelectedStatus(status === selectedStatus ? "" : status);
+    if (status === "All Statuses") {
+      setSelectedStatus("");
+    } else {
+      setSelectedStatus(status === selectedStatus ? "" : status);
+    }
     setOpenDropdown(null);
     setCurrentPage(0);
   };
@@ -62,18 +82,15 @@ const Mentee_Dashboard = () => {
     return matchesDomain && matchesStatus;
   });
 
-  const totalPages = Math.ceil(filteredMentorships.length / 3);
-  const visibleMentorships = filteredMentorships.slice(
-    currentPage * 3,
-    (currentPage + 1) * 3
-  );
-
   if (isLoading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <div className="loading-text">Loading mentorships...</div>
-      </div>
+      <>
+        <NavBar />
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <div className="loading-text">Loading mentorships...</div>
+        </div>
+      </>
     );
   }
 
@@ -82,23 +99,29 @@ const Mentee_Dashboard = () => {
       <NavBar />
       <div className="mentee-dashboard">
         {/* Hero Section */}
-        <section className="hero-section">
+        <section className="mentorship-hero">
           <div className="hero-content">
             <div className="hero-text">
-              <h1 className="hero-title">Find Your Perfect Mentor</h1>
+              <h1 className="hero-title">
+                <div className="title-icon">
+                  <i className="fas fa-user-friends"></i>
+                </div>
+                Find Your Perfect Mentor
+              </h1>
               <p className="hero-description">
                 Connect with experienced professionals who can guide your career journey
+                and help you achieve your goals
               </p>
             </div>
             <div className="hero-visual">
-              <div className="floating-icon">
-                <i className="fas fa-user-friends"></i>
-              </div>
-              <div className="floating-icon delay-1">
+              <div className="floating-element">
                 <i className="fas fa-lightbulb"></i>
               </div>
-              <div className="floating-icon delay-2">
+              <div className="floating-element delay-1">
                 <i className="fas fa-rocket"></i>
+              </div>
+              <div className="floating-element delay-2">
+                <i className="fas fa-target"></i>
               </div>
             </div>
           </div>
@@ -106,171 +129,175 @@ const Mentee_Dashboard = () => {
 
         {/* Filters Section */}
         <section className="filters-section">
-          <div className="filters-container">
-            <h2 className="filters-title">
-              <i className="fas fa-filter"></i>
-              Filter Mentorships
-            </h2>
-            
-            <div className="filter-row">
-              <div className="filter-group">
-                <label className="filter-label">Domains</label>
-                <div
-                  className="filter-input"
-                  onClick={() => toggleDropdown("domain")}
-                >
-                  <span className="filter-text">
-                    {selectedDomains.length > 0
-                      ? `${selectedDomains.length} Domains Selected`
-                      : "All Domains"}
-                  </span>
-                  <i
-                    className={`fas fa-chevron-${
-                      openDropdown === "domain" ? "up" : "down"
-                    } filter-chevron`}
-                  ></i>
-                </div>
-
-                {openDropdown === "domain" && (
-                  <div className="dropdown-menu">
-                    {domains.map((domain) => (
-                      <div
-                        key={domain}
-                        className={`dropdown-item ${
-                          selectedDomains.includes(domain) ? "active" : ""
-                        }`}
-                        onClick={() => handleDomainSelect(domain)}
-                      >
-                        <span className="dropdown-text">
-                          {domain.replace(/_/g, " ")}
-                        </span>
-                        {selectedDomains.includes(domain) && (
-                          <i className="fas fa-check dropdown-check"></i>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="filter-group">
-                <label className="filter-label">Status</label>
-                <div
-                  className="filter-input"
-                  onClick={() => toggleDropdown("status")}
-                >
-                  <span className="filter-text">
-                    {selectedStatus ? `Status: ${selectedStatus}` : "All Status"}
-                  </span>
-                  <i
-                    className={`fas fa-chevron-${
-                      openDropdown === "status" ? "up" : "down"
-                    } filter-chevron`}
-                  ></i>
-                </div>
-
-                {openDropdown === "status" && (
-                  <div className="dropdown-menu">
-                    {statuses.map((status) => (
-                      <div
-                        key={status}
-                        className={`dropdown-item ${
-                          selectedStatus === status ? "active" : ""
-                        }`}
-                        onClick={() => handleStatusSelect(status)}
-                      >
-                        <span className="dropdown-text">{status}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+          <div className="filters-container" ref={filterRef}>
+            <div className="filters-header">
+              <h3 className="filters-title">
+                <i className="fas fa-filter"></i>
+                Filter Mentorships
+              </h3>
+              <p className="filters-subtitle">Find exactly what you're looking for</p>
             </div>
 
-            {/* Active Filters Display */}
-            {(selectedDomains.length > 0 || selectedStatus) && (
-              <div className="active-filters">
-                <span className="active-filters-label">Active Filters:</span>
-                {selectedDomains.map((domain) => (
-                  <span key={domain} className="filter-tag">
-                    {domain.replace(/_/g, " ")}
-                    <i 
-                      className="fas fa-times filter-tag-remove"
-                      onClick={() => handleDomainSelect(domain)}
+            <div className="filter-controls">
+              <div className="filter-row">
+                <div className="filter-group">
+                  <div
+                    className="filter-input"
+                    onClick={() => toggleDropdown("domain")}
+                  >
+                    <div className="filter-icon">
+                      <i className="fas fa-code"></i>
+                    </div>
+                    <span>
+                      {selectedDomains.length > 0
+                        ? `${selectedDomains.length} Domains Selected`
+                        : "All Domains"}
+                    </span>
+                    <i
+                      className={`fas fa-chevron-${
+                        openDropdown === "domain" ? "up" : "down"
+                      } dropdown-arrow`}
                     ></i>
-                  </span>
-                ))}
-                {selectedStatus && (
-                  <span className="filter-tag">
-                    {selectedStatus}
-                    <i 
-                      className="fas fa-times filter-tag-remove"
-                      onClick={() => handleStatusSelect(selectedStatus)}
-                    ></i>
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Results Section */}
-        <section className="results-section">
-          <div className="results-header">
-            <h2 className="results-title">
-              <i className="fas fa-users"></i>
-              Available Mentors
-              <span className="results-count">({filteredMentorships.length})</span>
-            </h2>
-          </div>
-
-          <div className="carousel-container">
-            <button
-              className="carousel-arrow left"
-              onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-              disabled={currentPage === 0}
-            >
-              <i className="fas fa-chevron-left"></i>
-            </button>
-            
-            <div className="mentorship-list">
-              {visibleMentorships.length > 0 ? (
-                visibleMentorships.map((mentorship) => (
-                  <MentorshipCard key={mentorship.id} {...mentorship} />
-                ))
-              ) : (
-                <div className="no-mentorships">
-                  <div className="no-mentorships-icon">
-                    <i className="fas fa-search"></i>
                   </div>
-                  <h3>No mentorships found</h3>
-                  <p>Try adjusting your filters to find more mentors</p>
+
+                  {openDropdown === "domain" && (
+                    <div className="dropdown-menu">
+                      <div
+                        className={`dropdown-item ${
+                          selectedDomains.length === 0 ? "active" : ""
+                        }`}
+                        onClick={() => handleDomainSelect("All Domains")}
+                      >
+                        All Domains
+                        {selectedDomains.length === 0 && (
+                          <i className="fas fa-check"></i>
+                        )}
+                      </div>
+
+                      {domains.map((domain) => (
+                        <div
+                          key={domain}
+                          className={`dropdown-item ${
+                            selectedDomains.includes(domain) ? "active" : ""
+                          }`}
+                          onClick={() => handleDomainSelect(domain)}
+                        >
+                          {domain.replace(/_/g, " ")}
+                          {selectedDomains.includes(domain) && (
+                            <i className="fas fa-check"></i>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="filter-group">
+                  <div
+                    className="filter-input"
+                    onClick={() => toggleDropdown("status")}
+                  >
+                    <div className="filter-icon">
+                      <i className="fas fa-clipboard-check"></i>
+                    </div>
+                    <span>
+                      {selectedStatus ? `Status: ${selectedStatus}` : "All Status"}
+                    </span>
+                    <i
+                      className={`fas fa-chevron-${
+                        openDropdown === "status" ? "up" : "down"
+                      } dropdown-arrow`}
+                    ></i>
+                  </div>
+
+                  {openDropdown === "status" && (
+                    <div className="dropdown-menu">
+                      <div
+                        className={`dropdown-item ${
+                          selectedStatus === "" ? "active" : ""
+                        }`}
+                        onClick={() => handleStatusSelect("All Statuses")}
+                      >
+                        All Status
+                        {selectedStatus === "" && (
+                          <i className="fas fa-check"></i>
+                        )}
+                      </div>
+
+                      {statuses.map((status) => (
+                        <div
+                          key={status}
+                          className={`dropdown-item ${
+                            selectedStatus === status ? "active" : ""
+                          }`}
+                          onClick={() => handleStatusSelect(status)}
+                        >
+                          {status}
+                          {selectedStatus === status && (
+                            <i className="fas fa-check"></i>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Active Filters Display */}
+              {(selectedDomains.length > 0 || selectedStatus) && (
+                <div className="active-filters">
+                  <span className="active-filters-label">Active Filters:</span>
+                  {selectedDomains.map((domain) => (
+                    <span key={domain} className="filter-tag">
+                      {domain.replace(/_/g, " ")}
+                      <i 
+                        className="fas fa-times filter-tag-remove"
+                        onClick={() => handleDomainSelect(domain)}
+                      ></i>
+                    </span>
+                  ))}
+                  {selectedStatus && (
+                    <span className="filter-tag">
+                      {selectedStatus}
+                      <i 
+                        className="fas fa-times filter-tag-remove"
+                        onClick={() => handleStatusSelect(selectedStatus)}
+                      ></i>
+                    </span>
+                  )}
                 </div>
               )}
             </div>
+          </div>
+        </section>
 
-            <button
-              className="carousel-arrow right"
-              onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
-              disabled={currentPage >= totalPages - 1}
-            >
-              <i className="fas fa-chevron-right"></i>
-            </button>
+        {/* Mentorships List Section */}
+        <section className="mentorships-section">
+          <div className="mentorships-header">
+            <h3 className="mentorships-title">
+              <i className="fas fa-users"></i>
+              Available Mentors
+            </h3>
+            <p className="mentorships-count">
+              {filteredMentorships.length} {filteredMentorships.length === 1 ? 'mentor' : 'mentors'} found
+            </p>
           </div>
 
-          {/* Pagination Dots */}
-          {totalPages > 1 && (
-            <div className="pagination-dots">
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index}
-                  className={`pagination-dot ${currentPage === index ? 'active' : ''}`}
-                  onClick={() => setCurrentPage(index)}
-                >
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="mentorship-list">
+            {filteredMentorships.length > 0 ? (
+              filteredMentorships.map((mentorship) => (
+                <MentorshipCard key={mentorship.id} {...mentorship} />
+              ))
+            ) : (
+              <div className="no-mentorships">
+                <div className="no-mentorships-icon">
+                  <i className="fas fa-search"></i>
+                </div>
+                <h4>No mentorships found</h4>
+                <p>Try adjusting your filters to find more mentors</p>
+              </div>
+            )}
+          </div>
         </section>
       </div>
 
@@ -280,6 +307,12 @@ const Mentee_Dashboard = () => {
           min-height: calc(100vh - 70px);
           background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
           font-family: system-ui, -apple-system, sans-serif;
+          position: relative;
+          z-index: 1;
+        }
+
+        .mentee-dashboard * {
+          box-sizing: border-box;
         }
 
         /* Loading Styles */
@@ -288,7 +321,8 @@ const Mentee_Dashboard = () => {
           flex-direction: column;
           justify-content: center;
           align-items: center;
-          height: calc(100vh - 70px);
+          height: 100vh;
+          width: 100vw;
           background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         }
 
@@ -311,24 +345,25 @@ const Mentee_Dashboard = () => {
           font-size: 18px;
           font-weight: 600;
           color: #1e40af;
+          text-align: center;
         }
 
         /* Hero Section */
-        .hero-section {
+        .mentorship-hero {
           background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
           padding: 80px 0 100px;
           position: relative;
           overflow: hidden;
         }
 
-        .hero-section::before {
+        .mentorship-hero::before {
           content: '';
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
-          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
           opacity: 0.3;
         }
 
@@ -345,12 +380,31 @@ const Mentee_Dashboard = () => {
         }
 
         .hero-title {
-          font-size: 3.5rem;
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+          font-size: 3.2rem;
           font-weight: 800;
           color: white;
           margin-bottom: 1.5rem;
           line-height: 1.1;
           text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .title-icon {
+          width: 80px;
+          height: 80px;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .title-icon i {
+          font-size: 2.2rem;
+          color: white;
         }
 
         .hero-description {
@@ -367,7 +421,7 @@ const Mentee_Dashboard = () => {
           position: relative;
         }
 
-        .floating-icon {
+        .floating-element {
           width: 120px;
           height: 120px;
           background: rgba(255,255,255,0.15);
@@ -381,13 +435,13 @@ const Mentee_Dashboard = () => {
           animation: float 3s ease-in-out infinite;
         }
 
-        .floating-icon i {
+        .floating-element i {
           font-size: 3rem;
           color: white;
           opacity: 0.9;
         }
 
-        .floating-icon.delay-1 {
+        .floating-element.delay-1 {
           animation-delay: -1s;
           top: -60px;
           right: -40px;
@@ -395,7 +449,7 @@ const Mentee_Dashboard = () => {
           height: 100px;
         }
 
-        .floating-icon.delay-2 {
+        .floating-element.delay-2 {
           animation-delay: -2s;
           bottom: -60px;
           left: -40px;
@@ -410,101 +464,135 @@ const Mentee_Dashboard = () => {
 
         /* Filters Section */
         .filters-section {
-          padding: 60px 0;
-          background: white;
-          border-bottom: 1px solid #e2e8f0;
+          background: rgba(255,255,255,0.8);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(255,255,255,0.2);
+          padding: 40px 0;
+          position: relative;
         }
 
         .filters-container {
-          max-width: 1200px;
+          max-width: 1400px;
           margin: 0 auto;
           padding: 0 2rem;
+        }
+
+        .filters-header {
+          text-align: center;
+          margin-bottom: 3rem;
         }
 
         .filters-title {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          font-size: 1.5rem;
+          justify-content: center;
+          gap: 1rem;
+          font-size: 2rem;
           font-weight: 700;
           color: #1e293b;
-          margin-bottom: 2rem;
+          margin-bottom: 0.5rem;
         }
 
         .filters-title i {
           color: #3b82f6;
         }
 
+        .filters-subtitle {
+          color: #64748b;
+          font-size: 1.1rem;
+        }
+
+        .filter-controls {
+          background: white;
+          border-radius: 20px;
+          padding: 2rem;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+        }
+
         .filter-row {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
+          display: flex;
+          gap: 1.5rem;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin-bottom: 1.5rem;
         }
 
         .filter-group {
           position: relative;
-        }
-
-        .filter-label {
-          display: block;
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: #374151;
-          margin-bottom: 0.5rem;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+          min-width: 200px;
+          flex: 1;
+          max-width: 300px;
         }
 
         .filter-input {
-          background: white;
-          border: 2px solid #e5e7eb;
-          border-radius: 12px;
-          padding: 16px 20px;
-          cursor: pointer;
           display: flex;
-          justify-content: space-between;
           align-items: center;
+          gap: 1rem;
+          padding: 15px 20px;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          border: 2px solid transparent;
+          border-radius: 15px;
+          cursor: pointer;
           transition: all 0.3s ease;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          font-weight: 500;
         }
 
         .filter-input:hover {
           border-color: #3b82f6;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+          transform: translateY(-2px);
         }
 
-        .filter-text {
-          font-weight: 500;
-          color: #374151;
+        .filter-icon {
+          width: 35px;
+          height: 35px;
+          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
         }
 
-        .filter-chevron {
-          color: #6b7280;
+        .filter-icon i {
+          color: white;
+          font-size: 1rem;
+        }
+
+        .dropdown-arrow {
+          margin-left: auto;
+          color: #64748b;
           transition: transform 0.3s ease;
+        }
+
+        .filter-input:hover .dropdown-arrow {
+          color: #3b82f6;
         }
 
         .dropdown-menu {
           position: absolute;
-          top: calc(100% + 8px);
+          top: 100%;
           left: 0;
           right: 0;
           background: white;
-          border: 2px solid #e5e7eb;
-          border-radius: 12px;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-          z-index: 10;
+          border-radius: 15px;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+          border: 1px solid rgba(255,255,255,0.2);
+          z-index: 1000;
           max-height: 300px;
           overflow-y: auto;
+          margin-top: 8px;
         }
 
         .dropdown-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           padding: 12px 20px;
           cursor: pointer;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
           transition: all 0.2s ease;
-          border-bottom: 1px solid #f3f4f6;
+          border-bottom: 1px solid #f1f5f9;
         }
 
         .dropdown-item:last-child {
@@ -512,30 +600,29 @@ const Mentee_Dashboard = () => {
         }
 
         .dropdown-item:hover {
-          background: #f8fafc;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         }
 
         .dropdown-item.active {
           background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
           color: white;
+          font-weight: 600;
         }
 
-        .dropdown-text {
-          font-weight: 500;
-          text-transform: capitalize;
-        }
-
-        .dropdown-check {
-          color: white;
+        .dropdown-item i {
+          color: #10b981;
+          font-size: 0.9rem;
         }
 
         /* Active Filters */
         .active-filters {
-          margin-top: 2rem;
           display: flex;
           flex-wrap: wrap;
           align-items: center;
           gap: 0.75rem;
+          margin-top: 1.5rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid #e2e8f0;
         }
 
         .active-filters-label {
@@ -565,164 +652,96 @@ const Mentee_Dashboard = () => {
           opacity: 1;
         }
 
-        /* Results Section */
-        .results-section {
-          padding: 60px 0 80px;
+        /* Mentorships Section */
+        .mentorships-section {
+          padding: 60px 2rem 80px;
           max-width: 1400px;
           margin: 0 auto;
         }
 
-        .results-header {
-          text-align: center;
+        .mentorships-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
           margin-bottom: 3rem;
+          flex-wrap: wrap;
+          gap: 1rem;
         }
 
-        .results-title {
+        .mentorships-title {
           display: flex;
           align-items: center;
-          justify-content: center;
-          gap: 0.75rem;
-          font-size: 2rem;
-          font-weight: 700;
+          gap: 1rem;
+          font-size: 2.2rem;
+          font-weight: 800;
           color: #1e293b;
-          margin-bottom: 1rem;
         }
 
-        .results-title i {
+        .mentorships-title i {
           color: #3b82f6;
         }
 
-        .results-count {
+        .mentorships-count {
           background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
           color: white;
-          padding: 4px 12px;
-          border-radius: 15px;
-          font-size: 1rem;
+          padding: 10px 20px;
+          border-radius: 25px;
           font-weight: 600;
-        }
-
-        /* Carousel */
-        .carousel-container {
-          display: flex;
-          align-items: center;
-          gap: 2rem;
-          padding: 0 2rem;
-        }
-
-        .carousel-arrow {
-          width: 55px;
-          height: 55px;
-          border: none;
-          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-          color: white;
-          border-radius: 50%;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-          font-size: 1.1rem;
-          flex-shrink: 0;
-        }
-
-        .carousel-arrow:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-        }
-
-        .carousel-arrow:disabled {
-          opacity: 0.3;
-          cursor: not-allowed;
-          transform: none;
-          box-shadow: none;
+          font-size: 0.95rem;
         }
 
         .mentorship-list {
-          flex: 1;
-          display: flex;
+          display: grid;
           gap: 2rem;
-          overflow: hidden;
-          min-height: 300px;
+          grid-template-columns: 1fr;
         }
 
-        /* No Mentorships */
         .no-mentorships {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
           text-align: center;
-          padding: 4rem 2rem;
+          padding: 60px 2rem;
           background: white;
           border-radius: 20px;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+          box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
         }
 
         .no-mentorships-icon {
           width: 80px;
           height: 80px;
-          background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+          background: linear-gradient(135deg, #64748b 0%, #475569 100%);
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-bottom: 1.5rem;
+          margin: 0 auto 1.5rem;
         }
 
         .no-mentorships-icon i {
           font-size: 2rem;
-          color: #9ca3af;
+          color: white;
         }
 
-        .no-mentorships h3 {
+        .no-mentorships h4 {
           font-size: 1.5rem;
           font-weight: 700;
-          color: #374151;
+          color: #1e293b;
           margin-bottom: 0.5rem;
         }
 
         .no-mentorships p {
-          color: #6b7280;
-          font-size: 1rem;
-        }
-
-        /* Pagination */
-        .pagination-dots {
-          display: flex;
-          justify-content: center;
-          gap: 0.5rem;
-          margin-top: 2rem;
-        }
-
-        .pagination-dot {
-          width: 12px;
-          height: 12px;
-          border: none;
-          border-radius: 50%;
-          background: #d1d5db;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .pagination-dot.active {
-          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-          transform: scale(1.2);
-        }
-
-        .pagination-dot:hover {
-          background: #9ca3af;
+          color: #64748b;
+          font-size: 1.1rem;
         }
 
         /* Responsive Design */
         @media (max-width: 1024px) {
-          .mentorship-list {
-            gap: 1.5rem;
+          .filter-row {
+            justify-content: flex-start;
           }
-          
-          .results-section {
-            padding: 40px 0 60px;
+
+          .filter-group {
+            min-width: 180px;
+            max-width: 250px;
           }
         }
 
@@ -736,52 +755,59 @@ const Mentee_Dashboard = () => {
 
           .hero-title {
             font-size: 2.5rem;
+            flex-direction: column;
+            gap: 1rem;
+          }
+
+          .title-icon {
+            width: 70px;
+            height: 70px;
+          }
+
+          .title-icon i {
+            font-size: 2rem;
           }
 
           .hero-description {
             font-size: 1.1rem;
           }
 
-          .floating-icon {
+          .floating-element {
             display: none;
           }
 
           .filters-section {
-            padding: 40px 0;
+            padding: 30px 0;
           }
 
-          .filters-container {
-            padding: 0 1rem;
+          .filter-controls {
+            padding: 1.5rem;
           }
 
           .filter-row {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
+            flex-direction: column;
+            gap: 1rem;
           }
 
-          .results-title {
+          .filter-group {
+            min-width: auto;
+            max-width: none;
+          }
+
+          .mentorships-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+          }
+
+          .mentorships-title {
+            font-size: 1.8rem;
+          }
+
+          .filters-title {
             font-size: 1.5rem;
             flex-direction: column;
             gap: 0.5rem;
-          }
-
-          .carousel-container {
-            flex-direction: column;
-            gap: 1.5rem;
-          }
-
-          .carousel-arrow {
-            display: none;
-          }
-
-          .mentorship-list {
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-          }
-
-          .no-mentorships {
-            margin: 0 1rem;
           }
         }
 
@@ -790,28 +816,12 @@ const Mentee_Dashboard = () => {
             font-size: 2rem;
           }
 
-          .hero-section {
-            padding: 60px 0 80px;
+          .mentorships-section {
+            padding: 40px 1rem 60px;
           }
 
-          .filters-section {
-            padding: 30px 0;
-          }
-
-          .results-section {
-            padding: 30px 0 50px;
-          }
-
-          .carousel-container {
+          .filters-container {
             padding: 0 1rem;
-          }
-
-          .filter-input {
-            padding: 14px 16px;
-          }
-
-          .active-filters {
-            margin-top: 1.5rem;
           }
         }
       `}</style>
